@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <style>
+    .logo { fill: #36302A; }
+    @media (prefers-color-scheme: dark) {
+      .logo { fill: #F6F3EC; }
+    }
+  </style>
+
+  <g class="logo">
+    <!-- House shape with "UE" letters -->
+    <path d="M16,2 L2,10 L2,30 L30,30 L30,10 L16,2 Z M16,5 L27,11 L27,27 L5,27 L5,11 L16,5 Z" />
+    <!-- U letter -->
+    <path d="M11,12 L11,22 L14,22 L14,12 L11,12 Z" />
+    <path d="M14,22 L14,19 L18,19 L18,22 L14,22 Z" />
+    <path d="M18,19 L18,12 L21,12 L21,19 L18,19 Z" />
+  </g>
+</svg>
