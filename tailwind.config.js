@@ -3,7 +3,7 @@ export default {
   darkMode: "class",
   content: [
     "./index.html",
-    "./src/**/*.{js,jsx,css}",
+    "./src/**/*.{js,jsx}",
     "./node_modules/@material-tailwind/react/components/**/*.{js,ts,jsx,tsx}",
     "./node_modules/@material-tailwind/react/theme/components/**/*.{js,ts,jsx,tsx}",
     "./src/components/ui/**/*.{js,ts,jsx,tsx}",
