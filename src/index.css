@@ -10,6 +10,7 @@
     scroll-behavior: smooth;
   }
 
+
   body {
     @apply font-body bg-beige-light dark:bg-brown text-brown-dark dark:text-beige-light;
   }
