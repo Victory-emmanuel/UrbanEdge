@@ -2,38 +2,35 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { AdjustmentsHorizontalIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
-const PropertyFilters = ({ onFilterChange, initialFilters, className = "" }) => {
+const PropertyFilters = ({ onFilterChange, initialFilters, filterOptions = {}, className = "" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState(initialFilters || {
     location: "",
     minPrice: "",
     maxPrice: "",
-    bedrooms: "",
-    bathrooms: "",
+    minBedrooms: "",
+    maxBedrooms: "",
+    minBathrooms: "",
+    maxBathrooms: "",
     propertyType: "",
+    saleType: "",
     features: [],
   });
 
+  // Use dynamic property types from filterOptions or fallback to empty array
   const propertyTypes = [
-    { value: "", label: "All Types" },
-    { value: "house", label: "House" },
-    { value: "apartment", label: "Apartment" },
-    { value: "condo", label: "Condo" },
-    { value: "townhouse", label: "Townhouse" },
-    { value: "land", label: "Land" },
-    { value: "commercial", label: "Commercial" },
+    { id: "", name: "All Types" },
+    ...(filterOptions.propertyTypes || [])
   ];
 
-  const features = [
-    { value: "pool", label: "Swimming Pool" },
-    { value: "garden", label: "Garden" },
-    { value: "garage", label: "Garage" },
-    { value: "balcony", label: "Balcony" },
-    { value: "airConditioning", label: "Air Conditioning" },
-    { value: "gym", label: "Gym" },
-    { value: "security", label: "Security System" },
-    { value: "fireplace", label: "Fireplace" },
+  // Use dynamic sale types from filterOptions or fallback to empty array
+  const saleTypes = [
+    { id: "", name: "All Sale Types" },
+    ...(filterOptions.saleTypes || [])
   ];
+
+  // Use dynamic features from filterOptions or fallback to empty array
+  const features = filterOptions.features || [];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -42,9 +39,11 @@ const PropertyFilters = ({ onFilterChange, initialFilters, className = "" }) => 
 
   const handleCheckboxChange = (e) => {
     const { name, checked } = e.target;
+    const featureId = parseInt(name);
+    
     const updatedFeatures = checked
-      ? [...filters.features, name]
-      : filters.features.filter((feature) => feature !== name);
+      ? [...filters.features, featureId]
+      : filters.features.filter((id) => id !== featureId);
     
     setFilters({ ...filters, features: updatedFeatures });
   };
@@ -61,9 +60,12 @@ const PropertyFilters = ({ onFilterChange, initialFilters, className = "" }) => 
       location: "",
       minPrice: "",
       maxPrice: "",
-      bedrooms: "",
-      bathrooms: "",
+      minBedrooms: "",
+      maxBedrooms: "",
+      minBathrooms: "",
+      maxBathrooms: "",
       propertyType: "",
+      saleType: "",
       features: [],
     };
     setFilters(resetFilters);
@@ -157,14 +159,14 @@ const PropertyFilters = ({ onFilterChange, initialFilters, className = "" }) => 
           {/* Bedrooms & Bathrooms */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="bedrooms" className="block text-sm font-medium text-brown-dark dark:text-beige-light mb-1">
-                Bedrooms
+              <label htmlFor="minBedrooms" className="block text-sm font-medium text-brown-dark dark:text-beige-light mb-1">
+                Bedrooms (Min)
               </label>
               <select
-                id="bedrooms"
-                name="bedrooms"
+                id="minBedrooms"
+                name="minBedrooms"
                 className="input"
-                value={filters.bedrooms}
+                value={filters.minBedrooms}
                 onChange={handleInputChange}
               >
                 <option value="">Any</option>
@@ -176,14 +178,14 @@ const PropertyFilters = ({ onFilterChange, initialFilters, className = "" }) => 
               </select>
             </div>
             <div>
-              <label htmlFor="bathrooms" className="block text-sm font-medium text-brown-dark dark:text-beige-light mb-1">
-                Bathrooms
+              <label htmlFor="minBathrooms" className="block text-sm font-medium text-brown-dark dark:text-beige-light mb-1">
+                Bathrooms (Min)
               </label>
               <select
-                id="bathrooms"
-                name="bathrooms"
+                id="minBathrooms"
+                name="minBathrooms"
                 className="input"
-                value={filters.bathrooms}
+                value={filters.minBathrooms}
                 onChange={handleInputChange}
               >
                 <option value="">Any</option>
@@ -209,8 +211,28 @@ const PropertyFilters = ({ onFilterChange, initialFilters, className = "" }) => 
               onChange={handleInputChange}
             >
               {propertyTypes.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
+                <option key={type.id} value={type.id}>
+                  {type.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Sale Type */}
+          <div>
+            <label htmlFor="saleType" className="block text-sm font-medium text-brown-dark dark:text-beige-light mb-1">
+              Sale Type
+            </label>
+            <select
+              id="saleType"
+              name="saleType"
+              className="input"
+              value={filters.saleType}
+              onChange={handleInputChange}
+            >
+              {saleTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.name}
                 </option>
               ))}
             </select>
@@ -223,20 +245,20 @@ const PropertyFilters = ({ onFilterChange, initialFilters, className = "" }) => 
             </p>
             <div className="grid grid-cols-2 gap-2">
               {features.map((feature) => (
-                <div key={feature.value} className="flex items-center">
+                <div key={feature.id} className="flex items-center">
                   <input
                     type="checkbox"
-                    id={feature.value}
-                    name={feature.value}
-                    checked={filters.features.includes(feature.value)}
+                    id={`feature-${feature.id}`}
+                    name={feature.id.toString()}
+                    checked={filters.features.includes(feature.id)}
                     onChange={handleCheckboxChange}
                     className="h-4 w-4 text-taupe border-taupe rounded focus:ring-taupe"
                   />
                   <label
-                    htmlFor={feature.value}
+                    htmlFor={`feature-${feature.id}`}
                     className="ml-2 text-sm text-brown-dark dark:text-beige-light"
                   >
-                    {feature.label}
+                    {feature.name}
                   </label>
                 </div>
               ))}

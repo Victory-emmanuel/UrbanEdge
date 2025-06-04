@@ -5,205 +5,195 @@ import { supabase } from './supabase';
  */
 export const propertyService = {
   /**
-   * Fetch all properties with optional filtering
+   * Fetch properties with optional filtering using the filter_properties RPC function
    * @param {Object} filters - Optional filters for the query
    * @returns {Promise<{data: Array, error: Object}>}
    */
   async getProperties(filters = {}) {
-    let query = supabase
-      .from('properties')
-      .select(`
-        *,
-        property_type:property_types(id, name),
-        sale_type:sale_types(id, name),
-        property_images(*),
-        property_features!property_features_property_id_fkey(feature:features(id, name))
-      `);
+    // Map frontend filter names to backend parameter names
+    const params = {
+      location: filters.location || null,
+      min_price: filters.minPrice || null,
+      max_price: filters.maxPrice || null,
+      min_bedrooms: filters.minBedrooms || null,
+      max_bedrooms: filters.maxBedrooms || null,
+      min_bathrooms: filters.minBathrooms || null,
+      max_bathrooms: filters.maxBathrooms || null,
+      property_type_ids: filters.propertyType ? [filters.propertyType] : null,
+      feature_ids: filters.features || null,
+      sale_type_id: filters.saleType || null,
+      limit_val: filters.limit || 20,
+      offset_val: filters.offset || 0,
+      sort_by: filters.sortBy || 'newest'
+    };
 
-    // Apply filters if provided
-    if (filters.propertyType) {
-      query = query.eq('property_type_id', filters.propertyType);
-    }
-    if (filters.saleType) {
-      query = query.eq('sale_type_id', filters.saleType);
-    }
-    if (filters.minPrice) {
-      query = query.gte('price', filters.minPrice);
-    }
-    if (filters.maxPrice) {
-      query = query.lte('price', filters.maxPrice);
-    }
-    if (filters.bedrooms) {
-      query = query.eq('bedrooms', filters.bedrooms);
-    }
-    if (filters.bathrooms) {
-      query = query.eq('bathrooms', filters.bathrooms);
+    // Call the filter_properties RPC function
+    const { data, error } = await supabase.rpc('filter_properties', params);
+
+    if (error) {
+      console.error('Error fetching properties:', error);
+      return { data: null, error };
     }
 
-    // Order by created_at by default
-    query = query.order('created_at', { ascending: false });
-
-    return await query;
+    return { 
+      data: data.properties, 
+      totalCount: data.total_count,
+      limit: data.limit,
+      offset: data.offset,
+      error: null 
+    };
   },
 
   /**
-   * Fetch a single property by ID
+   * Fetch a single property by ID using the get_property_details RPC function
    * @param {string} id - Property ID
    * @returns {Promise<{data: Object, error: Object}>}
    */
   async getPropertyById(id) {
-    return await supabase
-      .from('properties')
-      .select(`
-        *,
-        property_type:property_types(id, name),
-        sale_type:sale_types(id, name),
-        property_images(*),
-        property_features!property_features_property_id_fkey(feature:features(id, name))
-      `)
-      .eq('id', id)
-      .single();
-  },
+    const { data, error } = await supabase.rpc('get_property_details', {
+      property_id: id
+    });
 
-  /**
-   * Create a new property
-   * @param {Object} property - Property data
-   * @returns {Promise<{data: Object, error: Object}>}
-   */
-  async createProperty(property) {
-    // First create the property
-    const { data, error } = await supabase
-      .from('properties')
-      .insert([
-        {
-          title: property.title,
-          location: property.location,
-          price: property.price,
-          bedrooms: property.bedrooms,
-          bathrooms: property.bathrooms,
-          square_feet: property.squareFeet,
-          description: property.description,
-          floor_plan_url: property.floorPlanUrl,
-          neighborhood: property.neighborhood,
-          property_type_id: property.propertyTypeId,
-          sale_type_id: property.saleTypeId,
-        },
-      ])
-      .select();
-
-    if (error || !data) return { data: null, error };
-
-    const propertyId = data[0].id;
-
-    // Then add images if provided
-    if (property.images && property.images.length > 0) {
-      const imagesToInsert = property.images.map((image, index) => ({
-        property_id: propertyId,
-        image_url: image.url,
-        order: index,
-      }));
-
-      const { error: imageError } = await supabase
-        .from('property_images')
-        .insert(imagesToInsert);
-
-      if (imageError) return { data, error: imageError };
+    if (error) {
+      console.error('Error fetching property details:', error);
+      return { data: null, error };
     }
 
-    // Then add features if provided
-    if (property.features && property.features.length > 0) {
-      const featuresToInsert = property.features.map((featureId) => ({
-        property_id: propertyId,
-        feature_id: featureId,
-      }));
-
-      const { error: featureError } = await supabase
-        .from('property_features')
-        .insert(featuresToInsert);
-
-      if (featureError) return { data, error: featureError };
+    // Check if the response contains an error message
+    if (data && data.error) {
+      return { data: null, error: { message: data.error } };
     }
 
     return { data, error: null };
   },
 
   /**
-   * Update an existing property
+   * Get all filter options (property types, sale types, features)
+   * @returns {Promise<{data: Object, error: Object}>}
+   */
+  async getFilterOptions() {
+    const { data, error } = await supabase.rpc('get_filter_options');
+
+    if (error) {
+      console.error('Error fetching filter options:', error);
+      return { data: null, error };
+    }
+
+    return { data, error: null };
+  },
+
+  /**
+   * Create a new property using the RPC function
+   * @param {Object} property - Property data
+   * @returns {Promise<{data: Object, error: Object}>}
+   */
+  async createProperty(property) {
+    // Call the create_property RPC function
+    const { data, error } = await supabase.rpc('create_property', {
+      title: property.title,
+      location: property.location,
+      price: property.price,
+      bedrooms: property.bedrooms,
+      bathrooms: property.bathrooms,
+      square_feet: property.squareFeet,
+      description: property.description,
+      floor_plan_url: property.floorPlanUrl,
+      neighborhood: property.neighborhood,
+      property_type_id: property.propertyTypeId,
+      sale_type_id: property.saleTypeId,
+      feature_ids: property.features || []
+    });
+
+    if (error) return { data: null, error };
+
+    // Handle images if provided
+    if (property.images && property.images.length > 0) {
+      const propertyId = data.id;
+      const imagePromises = property.images.map((image, index) => {
+        return supabase.rpc('add_property_image', {
+          property_id: propertyId,
+          image_url: image.url,
+          image_order: index
+        });
+      });
+
+      const imageResults = await Promise.all(imagePromises);
+      const imageErrors = imageResults.filter(result => result.error);
+
+      if (imageErrors.length > 0) {
+        return { data, error: imageErrors[0].error };
+      }
+    }
+
+    return { data, error: null };
+  },
+
+  /**
+   * Update an existing property using the RPC function
    * @param {string} id - Property ID
    * @param {Object} property - Updated property data
    * @returns {Promise<{data: Object, error: Object}>}
    */
   async updateProperty(id, property) {
-    // First update the property
-    const { data, error } = await supabase
-      .from('properties')
-      .update({
-        title: property.title,
-        location: property.location,
-        price: property.price,
-        bedrooms: property.bedrooms,
-        bathrooms: property.bathrooms,
-        square_feet: property.squareFeet,
-        description: property.description,
-        floor_plan_url: property.floorPlanUrl,
-        neighborhood: property.neighborhood,
-        property_type_id: property.propertyTypeId,
-        sale_type_id: property.saleTypeId,
-        updated_at: new Date(),
-      })
-      .eq('id', id)
-      .select();
+    // Prepare fields to update
+    const fieldsToUpdate = {
+      title: property.title,
+      location: property.location,
+      price: property.price,
+      bedrooms: property.bedrooms,
+      bathrooms: property.bathrooms,
+      square_feet: property.squareFeet,
+      description: property.description,
+      floor_plan_url: property.floorPlanUrl,
+      neighborhood: property.neighborhood,
+      property_type_id: property.propertyTypeId,
+      sale_type_id: property.saleTypeId,
+      updated_at: new Date()
+    };
+
+    // Call the update_property RPC function
+    const { data, error } = await supabase.rpc('update_property', {
+      property_id: id,
+      fields_to_update: fieldsToUpdate,
+      feature_ids: property.features || null
+    });
 
     if (error) return { data: null, error };
 
     // Handle images if provided
     if (property.images) {
       // First delete existing images
-      const { error: deleteError } = await supabase
+      const { data: existingImages } = await supabase
         .from('property_images')
-        .delete()
+        .select('id')
         .eq('property_id', id);
 
-      if (deleteError) return { data, error: deleteError };
+      if (existingImages && existingImages.length > 0) {
+        const deletePromises = existingImages.map(img => {
+          return supabase.rpc('delete_property_image', {
+            image_id: img.id
+          });
+        });
+
+        await Promise.all(deletePromises);
+      }
 
       // Then add new images
       if (property.images.length > 0) {
-        const imagesToInsert = property.images.map((image, index) => ({
-          property_id: id,
-          image_url: image.url,
-          order: index,
-        }));
+        const imagePromises = property.images.map((image, index) => {
+          return supabase.rpc('add_property_image', {
+            property_id: id,
+            image_url: image.url,
+            image_order: index
+          });
+        });
 
-        const { error: imageError } = await supabase
-          .from('property_images')
-          .insert(imagesToInsert);
+        const imageResults = await Promise.all(imagePromises);
+        const imageErrors = imageResults.filter(result => result.error);
 
-        if (imageError) return { data, error: imageError };
-      }
-    }
-
-    // Handle features if provided
-    if (property.features) {
-      // First delete existing features
-      const { error: deleteError } = await supabase
-        .from('property_features')
-        .delete()
-        .eq('property_id', id);
-
-      if (deleteError) return { data, error: deleteError };
-
-      // Then add new features
-      if (property.features.length > 0) {
-        const featuresToInsert = property.features.map((featureId) => ({
-          property_id: id,
-          feature_id: featureId,
-        }));
-
-        const { error: featureError } = await supabase
-          .from('property_features')
-          .insert(featuresToInsert);
-
-        if (featureError) return { data, error: featureError };
+        if (imageErrors.length > 0) {
+          return { data, error: imageErrors[0].error };
+        }
       }
     }
 
@@ -211,13 +201,14 @@ export const propertyService = {
   },
 
   /**
-   * Delete a property
+   * Delete a property using the RPC function
    * @param {string} id - Property ID
-   * @returns {Promise<{error: Object}>}
+   * @returns {Promise<{data: Object, error: Object}>}
    */
   async deleteProperty(id) {
-    // Due to cascade delete, we only need to delete the property
-    return await supabase.from('properties').delete().eq('id', id);
+    return await supabase.rpc('delete_property', {
+      property_id: id
+    });
   },
 
   /**
@@ -225,7 +216,9 @@ export const propertyService = {
    * @returns {Promise<{data: Array, error: Object}>}
    */
   async getPropertyTypes() {
-    return await supabase.from('property_types').select('*');
+    const { data, error } = await supabase.rpc('get_filter_options');
+    if (error) return { data: null, error };
+    return { data: data.property_types, error: null };
   },
 
   /**
@@ -233,7 +226,9 @@ export const propertyService = {
    * @returns {Promise<{data: Array, error: Object}>}
    */
   async getSaleTypes() {
-    return await supabase.from('sale_types').select('*');
+    const { data, error } = await supabase.rpc('get_filter_options');
+    if (error) return { data: null, error };
+    return { data: data.sale_types, error: null };
   },
 
   /**
@@ -241,6 +236,8 @@ export const propertyService = {
    * @returns {Promise<{data: Array, error: Object}>}
    */
   async getFeatures() {
-    return await supabase.from('features').select('*');
+    const { data, error } = await supabase.rpc('get_filter_options');
+    if (error) return { data: null, error };
+    return { data: data.features, error: null };
   },
 };

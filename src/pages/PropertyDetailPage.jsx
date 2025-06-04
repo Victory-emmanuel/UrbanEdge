@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { HeartIcon, ArrowLeftIcon, ShareIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
 import { motion } from "framer-motion";
+import { propertyService } from "../lib/propertyService";
 
 import PropertyGallery from "../components/Properties/PropertyDetail/PropertyGallery";
 import PropertyFeatures from "../components/Properties/PropertyDetail/PropertyFeatures";
@@ -12,139 +13,59 @@ import PropertyContactForm from "../components/Properties/PropertyDetail/Propert
 import PropertyMortgageCalculator from "../components/Properties/PropertyDetail/PropertyMortgageCalculator";
 import SimilarProperties from "../components/Properties/PropertyDetail/SimilarProperties";
 
-// Sample property data - in a real app, this would come from an API
-const sampleProperty = {
-  id: 1,
-  title: "Modern Luxury Villa with Ocean View",
-  location: "Beverly Hills, CA",
-  price: 4500000,
-  features: {
-    bedrooms: 5,
-    bathrooms: 4.5,
-    area: 4200,
-    garage: 2,
-    yearBuilt: 2020,
-    propertyType: "Villa",
-  },
-  amenities: ["pool", "garden", "garage", "balcony", "airConditioning", "security", "fireplace"],
-  description: "This stunning modern villa offers breathtaking ocean views and luxurious living spaces. Featuring an open floor plan with high ceilings, floor-to-ceiling windows, and premium finishes throughout. The gourmet kitchen includes top-of-the-line appliances, custom cabinetry, and a large center island. The primary suite boasts a spa-like bathroom and private balcony. Outside, enjoy the infinity pool, landscaped gardens, and multiple entertaining areas.",
-  additionalInfo: "The property includes smart home technology, solar panels, and a state-of-the-art security system. Located in a prestigious gated community with easy access to shopping, dining, and entertainment.",
-  images: [
-    { url: "https://images.unsplash.com/photo-1613977257363-707ba9348227?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80", alt: "Front view of modern luxury villa" },
-    { url: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80", alt: "Living room with ocean view" },
-    { url: "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80", alt: "Modern kitchen with island" },
-    { url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80", alt: "Backyard with pool" },
-    { url: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80", alt: "Master bedroom" },
-  ],
-  floorPlans: [
-    {
-      name: "Main Floor",
-      size: 2500,
-      bedrooms: 3,
-      bathrooms: 2.5,
-      imageUrl: "https://images.unsplash.com/photo-1580800218522-fae1a9d6b1d2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    },
-    {
-      name: "Second Floor",
-      size: 1700,
-      bedrooms: 2,
-      bathrooms: 2,
-      imageUrl: "https://images.unsplash.com/photo-1580800218522-fae1a9d6b1d2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    },
-  ],
-  neighborhood: {
-    description: "Located in the prestigious Beverly Hills neighborhood, this property offers the perfect blend of privacy and convenience. Enjoy proximity to high-end shopping, fine dining, and cultural attractions.",
-    nearbyPlaces: [
-      { name: "Beverly Hills High School", type: "School", distance: "0.5 miles" },
-      { name: "Rodeo Drive", type: "Shopping", distance: "1.2 miles" },
-      { name: "Beverly Hills Park", type: "Park", distance: "0.8 miles" },
-      { name: "Cedars-Sinai Medical Center", type: "Hospital", distance: "2.5 miles" },
-      { name: "The Grove", type: "Shopping & Dining", distance: "3.1 miles" },
-      { name: "Beverly Hills Country Club", type: "Recreation", distance: "1.7 miles" },
-    ],
-  },
-  reviews: [
-    {
-      name: "Michael Johnson",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
-      date: "August 15, 2023",
-      rating: 5,
-      comment: "I recently toured this property and was blown away by the attention to detail and quality of finishes. The views are even more spectacular in person!",
-    },
-    {
-      name: "Sarah Williams",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
-      date: "July 28, 2023",
-      rating: 4,
-      comment: "The location and amenities are fantastic. The only reason I'm giving 4 stars instead of 5 is because the property would benefit from some additional landscaping in the side yard.",
-    },
-  ],
-  agent: {
-    name: "Jennifer Parker",
-    title: "Luxury Property Specialist",
-    phone: "(310) 555-1234",
-    email: "jennifer@urbanedge.com",
-    photo: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1976&q=80",
-  },
-};
-
-// Sample similar properties
-const similarProperties = [
-  {
-    id: 3,
-    title: "Seaside Retreat",
-    location: "Malibu, CA",
-    price: 5800000,
-    bedrooms: 4,
-    bathrooms: 3.5,
-    sqft: 3600,
-    type: "House",
-    features: ["pool", "garden", "balcony", "fireplace"],
-    imageUrl: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    isFavorite: false,
-  },
-  {
-    id: 5,
-    title: "Mountain View Cabin",
-    location: "Aspen, CO",
-    price: 2100000,
-    bedrooms: 3,
-    bathrooms: 2,
-    sqft: 2200,
-    type: "House",
-    features: ["fireplace", "garden"],
-    imageUrl: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2065&q=80",
-    isFavorite: false,
-  },
-  {
-    id: 9,
-    title: "Lakefront Property",
-    location: "Lake Tahoe, NV",
-    price: 4200000,
-    bedrooms: 5,
-    bathrooms: 4,
-    sqft: 3800,
-    type: "House",
-    features: ["pool", "garden", "fireplace", "security"],
-    imageUrl: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2075&q=80",
-    isFavorite: false,
-  },
-];
-
 const PropertyDetailPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [property, setProperty] = useState(null);
+  const [similarProperties, setSimilarProperties] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
-    // Simulate API call to fetch property details
-    setLoading(true);
-    setTimeout(() => {
-      // In a real app, you would fetch the property with the matching ID
-      setProperty(sampleProperty);
-      setLoading(false);
-    }, 800);
+    const fetchPropertyDetails = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        // Fetch property details
+        const { data, error } = await propertyService.getPropertyById(parseInt(id));
+        
+        if (error) {
+          throw new Error(error.message || "Failed to fetch property details");
+        }
+        
+        if (!data) {
+          throw new Error("Property not found");
+        }
+
+        setProperty(data);
+
+        // Fetch similar properties based on property type
+        if (data.property_type_id) {
+          const similarParams = {
+            property_type_ids: [data.property_type_id],
+            limit_val: 4,
+            offset_val: 0,
+            exclude_property_id: parseInt(id)
+          };
+
+          const { data: similarData } = await propertyService.getProperties(similarParams);
+          if (similarData && similarData.properties) {
+            setSimilarProperties(similarData.properties);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching property details:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchPropertyDetails();
+    }
   }, [id]);
 
   const toggleFavorite = () => {
@@ -154,7 +75,13 @@ const PropertyDetailPage = () => {
 
   const handleShare = () => {
     // In a real app, this would open a share dialog
-    alert("Share functionality would be implemented here");
+    navigator.share ? 
+      navigator.share({
+        title: property.title,
+        text: `Check out this property: ${property.title}`,
+        url: window.location.href,
+      }).catch(err => console.error("Share failed:", err)) :
+      alert("Share functionality not supported in this browser");
   };
 
   if (loading) {
@@ -176,11 +103,11 @@ const PropertyDetailPage = () => {
     );
   }
 
-  if (!property) {
+  if (error || !property) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <h2 className="text-2xl font-heading font-bold text-brown-dark dark:text-beige-light mb-4">
-          Property Not Found
+          {error || "Property Not Found"}
         </h2>
         <p className="text-brown dark:text-beige-medium mb-6">
           The property you're looking for doesn't exist or has been removed.
@@ -192,11 +119,23 @@ const PropertyDetailPage = () => {
     );
   }
 
+  // Extract features and amenities from property data
+  const propertyFeatures = {
+    bedrooms: property.bedrooms,
+    bathrooms: property.bathrooms,
+    area: property.square_feet,
+    yearBuilt: property.year_built,
+    propertyType: property.property_type?.name
+  };
+
+  // Convert features array to expected format for PropertyFeatures component
+  const amenities = property.features?.map(feature => feature.name.toLowerCase().replace(/\s+/g, '')) || [];
+
   return (
     <>
       <Helmet>
         <title>{property.title} | UrbanEdge Real Estate</title>
-        <meta name="description" content={`${property.title} - ${property.location}. ${property.features.bedrooms} bedrooms, ${property.features.bathrooms} bathrooms, ${property.features.area} sqft. Offered at $${property.price.toLocaleString()}.`} />
+        <meta name="description" content={`${property.title} - ${property.location}. ${property.bedrooms} bedrooms, ${property.bathrooms} bathrooms, ${property.square_feet} sqft. Offered at $${property.price.toLocaleString()}.`} />
       </Helmet>
 
       <div className="bg-beige-light dark:bg-brown">
@@ -214,7 +153,10 @@ const PropertyDetailPage = () => {
 
           {/* Property Gallery */}
           <div className="mb-8">
-            <PropertyGallery images={property.images} />
+            <PropertyGallery images={property.images?.map(img => ({
+              url: img.url,
+              alt: property.title
+            }))} />
           </div>
 
           {/* Property Header */}
@@ -257,8 +199,8 @@ const PropertyDetailPage = () => {
           {/* Property Features */}
           <div className="mb-12">
             <PropertyFeatures
-              features={property.features}
-              amenities={property.amenities}
+              features={propertyFeatures}
+              amenities={amenities}
             />
           </div>
 
@@ -266,7 +208,23 @@ const PropertyDetailPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Property Details */}
             <div className="lg:col-span-2">
-              <PropertyTabs property={property} />
+              <PropertyTabs property={{
+                description: property.description,
+                floorPlans: property.floor_plan_url ? [
+                  {
+                    name: "Floor Plan",
+                    imageUrl: property.floor_plan_url,
+                    size: property.square_feet,
+                    bedrooms: property.bedrooms,
+                    bathrooms: property.bathrooms
+                  }
+                ] : [],
+                neighborhood: {
+                  description: property.neighborhood || "Neighborhood information not available.",
+                  nearbyPlaces: []
+                },
+                reviews: []
+              }} />
             </div>
 
             {/* Right Column - Contact Form & Mortgage Calculator */}
@@ -277,7 +235,13 @@ const PropertyDetailPage = () => {
                 transition={{ duration: 0.5 }}
               >
                 <PropertyContactForm
-                  agent={property.agent}
+                  agent={property.agent || {
+                    name: "UrbanEdge Agent",
+                    title: "Real Estate Agent",
+                    phone: "(555) 123-4567",
+                    email: "contact@urbanedge.com",
+                    photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
+                  }}
                   propertyTitle={property.title}
                 />
               </motion.div>
@@ -287,7 +251,9 @@ const PropertyDetailPage = () => {
           </div>
 
           {/* Similar Properties */}
-          <SimilarProperties properties={similarProperties} />
+          {similarProperties.length > 0 && (
+            <SimilarProperties properties={similarProperties} />
+          )}
         </div>
       </div>
     </>

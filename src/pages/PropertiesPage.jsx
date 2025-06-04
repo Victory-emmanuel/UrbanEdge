@@ -1,149 +1,67 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import { propertyService } from "../lib/propertyService";
 import PropertyFilters from "../components/Properties/PropertyFilters";
 import PropertyGrid from "../components/Properties/PropertyGrid";
 import PropertyMap from "../components/Properties/PropertyMap";
 import PropertySort from "../components/Properties/PropertySort";
 import PropertyToggleView from "../components/Properties/PropertyToggleView";
 import SectionHeading from "../components/UI/SectionHeading";
-
-// Sample property data - in a real app, this would come from an API
-const sampleProperties = [
-  {
-    id: 1,
-    title: "Modern Luxury Villa",
-    location: "Beverly Hills, CA",
-    price: 4500000,
-    bedrooms: 5,
-    bathrooms: 4.5,
-    sqft: 4200,
-    type: "house",
-    features: ["pool", "garden", "garage", "security"],
-    imageUrl: "https://images.unsplash.com/photo-1613977257363-707ba9348227?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    isFavorite: false,
-  },
-  {
-    id: 2,
-    title: "Downtown Penthouse",
-    location: "Manhattan, NY",
-    price: 3200000,
-    bedrooms: 3,
-    bathrooms: 3,
-    sqft: 2800,
-    type: "apartment",
-    features: ["balcony", "airConditioning", "security"],
-    imageUrl: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    isFavorite: true,
-  },
-  {
-    id: 3,
-    title: "Seaside Retreat",
-    location: "Malibu, CA",
-    price: 5800000,
-    bedrooms: 4,
-    bathrooms: 3.5,
-    sqft: 3600,
-    type: "house",
-    features: ["pool", "garden", "balcony", "fireplace"],
-    imageUrl: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    isFavorite: false,
-  },
-  {
-    id: 4,
-    title: "Urban Loft",
-    location: "Chicago, IL",
-    price: 1200000,
-    bedrooms: 2,
-    bathrooms: 2,
-    sqft: 1800,
-    type: "condo",
-    features: ["airConditioning", "security"],
-    imageUrl: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    isFavorite: false,
-  },
-  {
-    id: 5,
-    title: "Mountain View Cabin",
-    location: "Aspen, CO",
-    price: 2100000,
-    bedrooms: 3,
-    bathrooms: 2,
-    sqft: 2200,
-    type: "house",
-    features: ["fireplace", "garden"],
-    imageUrl: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2065&q=80",
-    isFavorite: false,
-  },
-  {
-    id: 6,
-    title: "Waterfront Condo",
-    location: "Miami, FL",
-    price: 1800000,
-    bedrooms: 2,
-    bathrooms: 2.5,
-    sqft: 1600,
-    type: "condo",
-    features: ["pool", "balcony", "airConditioning", "security"],
-    imageUrl: "https://images.unsplash.com/photo-1567496898669-ee935f5f647a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80",
-    isFavorite: false,
-  },
-  {
-    id: 7,
-    title: "Historic Brownstone",
-    location: "Boston, MA",
-    price: 3900000,
-    bedrooms: 4,
-    bathrooms: 3,
-    sqft: 3200,
-    type: "townhouse",
-    features: ["fireplace", "garden"],
-    imageUrl: "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    isFavorite: false,
-  },
-  {
-    id: 8,
-    title: "Desert Oasis",
-    location: "Scottsdale, AZ",
-    price: 2700000,
-    bedrooms: 3,
-    bathrooms: 3.5,
-    sqft: 2800,
-    type: "house",
-    features: ["pool", "airConditioning", "security"],
-    imageUrl: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80",
-    isFavorite: false,
-  },
-  {
-    id: 9,
-    title: "Lakefront Property",
-    location: "Lake Tahoe, NV",
-    price: 4200000,
-    bedrooms: 5,
-    bathrooms: 4,
-    sqft: 3800,
-    type: "house",
-    features: ["pool", "garden", "fireplace", "security"],
-    imageUrl: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2075&q=80",
-    isFavorite: false,
-  },
-];
+import Pagination from "../components/UI/Pagination";
 
 const PropertiesPage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [view, setView] = useState("grid");
   const [sortBy, setSortBy] = useState("newest");
   const [filters, setFilters] = useState({
     location: "",
     minPrice: "",
     maxPrice: "",
-    bedrooms: "",
-    bathrooms: "",
+    minBedrooms: "",
+    maxBedrooms: "",
+    minBathrooms: "",
+    maxBathrooms: "",
     propertyType: "",
+    saleType: "",
     features: [],
   });
-  const [filteredProperties, setFilteredProperties] = useState(sampleProperties);
-  const [loading, setLoading] = useState(false);
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalCount: 0,
+    limit: 12,
+  });
+  const [filterOptions, setFilterOptions] = useState({
+    propertyTypes: [],
+    saleTypes: [],
+    features: [],
+  });
+
+  // Fetch filter options on component mount
+  useEffect(() => {
+    const fetchFilterOptions = async () => {
+      try {
+        const { data, error } = await propertyService.getFilterOptions();
+        if (error) throw new Error(error.message || "Failed to fetch filter options");
+        
+        setFilterOptions({
+          propertyTypes: data.property_types || [],
+          saleTypes: data.sale_types || [],
+          features: data.features || [],
+        });
+      } catch (err) {
+        console.error("Error fetching filter options:", err);
+        setError("Failed to load filter options. Please try again later.");
+      }
+    };
+
+    fetchFilterOptions();
+  }, []);
 
   // Parse URL query parameters on initial load
   useEffect(() => {
@@ -152,100 +70,106 @@ const PropertiesPage = () => {
       location: searchParams.get("location") || "",
       minPrice: searchParams.get("minPrice") || "",
       maxPrice: searchParams.get("maxPrice") || "",
-      bedrooms: searchParams.get("bedrooms") || "",
-      bathrooms: searchParams.get("bathrooms") || "",
-      propertyType: searchParams.get("type") || "",
-      features: [],
+      minBedrooms: searchParams.get("minBedrooms") || "",
+      maxBedrooms: searchParams.get("maxBedrooms") || "",
+      minBathrooms: searchParams.get("minBathrooms") || "",
+      maxBathrooms: searchParams.get("maxBathrooms") || "",
+      propertyType: searchParams.get("propertyType") || "",
+      saleType: searchParams.get("saleType") || "",
+      features: searchParams.get("features") ? searchParams.get("features").split(",") : [],
     };
 
+    const page = parseInt(searchParams.get("page")) || 1;
+    const sort = searchParams.get("sort") || "newest";
+
     setFilters(initialFilters);
-    applyFilters(initialFilters, sortBy);
+    setSortBy(sort);
+    setPagination(prev => ({ ...prev, currentPage: page }));
   }, [location.search]);
 
-  const applyFilters = (currentFilters, currentSort) => {
+  // Fetch properties when filters, sort, or pagination changes
+  useEffect(() => {
+    fetchProperties();
+  }, [filters, sortBy, pagination.currentPage]);
+
+  const fetchProperties = async () => {
     setLoading(true);
+    setError(null);
 
-    // Simulate API call delay
-    setTimeout(() => {
-      let results = [...sampleProperties];
+    try {
+      const offset = (pagination.currentPage - 1) * pagination.limit;
+      
+      const { data, totalCount, limit, offset: returnedOffset, error } = 
+        await propertyService.getProperties({
+          ...filters,
+          sortBy,
+          limit: pagination.limit,
+          offset,
+        });
 
-      // Apply filters
-      if (currentFilters.location) {
-        results = results.filter(property =>
-          property.location.toLowerCase().includes(currentFilters.location.toLowerCase())
-        );
-      }
+      if (error) throw new Error(error.message || "Failed to fetch properties");
 
-      if (currentFilters.minPrice) {
-        results = results.filter(property =>
-          property.price >= parseInt(currentFilters.minPrice)
-        );
-      }
-
-      if (currentFilters.maxPrice) {
-        results = results.filter(property =>
-          property.price <= parseInt(currentFilters.maxPrice)
-        );
-      }
-
-      if (currentFilters.bedrooms) {
-        results = results.filter(property =>
-          property.bedrooms >= parseInt(currentFilters.bedrooms)
-        );
-      }
-
-      if (currentFilters.bathrooms) {
-        results = results.filter(property =>
-          property.bathrooms >= parseInt(currentFilters.bathrooms)
-        );
-      }
-
-      if (currentFilters.propertyType) {
-        results = results.filter(property =>
-          property.type === currentFilters.propertyType
-        );
-      }
-
-      if (currentFilters.features && currentFilters.features.length > 0) {
-        results = results.filter(property =>
-          currentFilters.features.every(feature => property.features.includes(feature))
-        );
-      }
-
-      // Apply sorting
-      switch (currentSort) {
-        case "price_low":
-          results.sort((a, b) => a.price - b.price);
-          break;
-        case "price_high":
-          results.sort((a, b) => b.price - a.price);
-          break;
-        case "beds_high":
-          results.sort((a, b) => b.bedrooms - a.bedrooms);
-          break;
-        case "size_high":
-          results.sort((a, b) => b.sqft - a.sqft);
-          break;
-        case "newest":
-        default:
-          // Assuming id correlates with newest (higher id = newer listing)
-          results.sort((a, b) => b.id - a.id);
-          break;
-      }
-
-      setFilteredProperties(results);
+      setProperties(data || []);
+      setPagination(prev => ({
+        ...prev,
+        totalCount: totalCount || 0,
+        totalPages: Math.ceil((totalCount || 0) / (limit || pagination.limit)),
+      }));
+    } catch (err) {
+      console.error("Error fetching properties:", err);
+      setError("Failed to load properties. Please try again later.");
+      setProperties([]);
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
   const handleFilterChange = (newFilters) => {
+    // Reset to page 1 when filters change
+    setPagination(prev => ({ ...prev, currentPage: 1 }));
     setFilters(newFilters);
-    applyFilters(newFilters, sortBy);
+    
+    // Update URL with new filters
+    updateUrl(newFilters, sortBy, 1);
   };
 
   const handleSortChange = (newSort) => {
     setSortBy(newSort);
-    applyFilters(filters, newSort);
+    
+    // Update URL with new sort
+    updateUrl(filters, newSort, pagination.currentPage);
+  };
+
+  const handlePageChange = (newPage) => {
+    setPagination(prev => ({ ...prev, currentPage: newPage }));
+    
+    // Update URL with new page
+    updateUrl(filters, sortBy, newPage);
+  };
+
+  const updateUrl = (currentFilters, currentSort, page) => {
+    const params = new URLSearchParams();
+    
+    // Add filters to URL
+    if (currentFilters.location) params.set("location", currentFilters.location);
+    if (currentFilters.minPrice) params.set("minPrice", currentFilters.minPrice);
+    if (currentFilters.maxPrice) params.set("maxPrice", currentFilters.maxPrice);
+    if (currentFilters.minBedrooms) params.set("minBedrooms", currentFilters.minBedrooms);
+    if (currentFilters.maxBedrooms) params.set("maxBedrooms", currentFilters.maxBedrooms);
+    if (currentFilters.minBathrooms) params.set("minBathrooms", currentFilters.minBathrooms);
+    if (currentFilters.maxBathrooms) params.set("maxBathrooms", currentFilters.maxBathrooms);
+    if (currentFilters.propertyType) params.set("propertyType", currentFilters.propertyType);
+    if (currentFilters.saleType) params.set("saleType", currentFilters.saleType);
+    if (currentFilters.features && currentFilters.features.length > 0) {
+      params.set("features", currentFilters.features.join(","));
+    }
+    
+    // Add sort and page to URL
+    params.set("sort", currentSort);
+    params.set("page", page.toString());
+    
+    // Update URL without reloading the page
+    navigate({ search: params.toString() }, { replace: true });
   };
 
   const handleViewChange = (newView) => {
@@ -273,6 +197,7 @@ const PropertiesPage = () => {
               <PropertyFilters
                 onFilterChange={handleFilterChange}
                 initialFilters={filters}
+                filterOptions={filterOptions}
               />
             </div>
 
@@ -282,7 +207,7 @@ const PropertiesPage = () => {
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <div className="flex items-center">
                   <span className="text-brown-dark dark:text-beige-light mr-2">
-                    {filteredProperties.length} properties found
+                    {pagination.totalCount} properties found
                   </span>
                 </div>
 
@@ -298,19 +223,37 @@ const PropertiesPage = () => {
                 </div>
               </div>
 
+              {/* Error Message */}
+              {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                  {error}
+                </div>
+              )}
+
               {/* Properties Display */}
               <div className="min-h-[500px]">
                 {view === "grid" ? (
                   <PropertyGrid
-                    properties={filteredProperties}
+                    properties={properties}
                     loading={loading}
                   />
                 ) : (
                   <div className="h-[700px]">
-                    <PropertyMap properties={filteredProperties} />
+                    <PropertyMap properties={properties} />
                   </div>
                 )}
               </div>
+
+              {/* Pagination */}
+              {!loading && pagination.totalPages > 1 && (
+                <div className="mt-8 flex justify-center">
+                  <Pagination
+                    currentPage={pagination.currentPage}
+                    totalPages={pagination.totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
