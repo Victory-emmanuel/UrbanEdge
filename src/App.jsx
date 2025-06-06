@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import ErrorBoundary from "./components/UI/ErrorBoundary";
 
 // Pages
 import HomePage from "./pages/HomePage";
@@ -44,61 +45,51 @@ const ProtectedRoute = ({ element, requireAdmin = false }) => {
 };
 
 function App() {
-  // useEffect(() => {
-  //   // Check for saved theme preference or use system preference
-  //   const isDarkMode =
-  //     localStorage.getItem("darkMode") === "true" ||
-  //     (!"darkMode" in localStorage &&
-  //       window.matchMedia("(prefers-color-scheme: dark)").matches);
-
-  //   if (isDarkMode) {
-  //     document.documentElement.classList.add("dark");
-  //   } else {
-  //     document.documentElement.classList.remove("dark");
-  //   }
-  // }, []);
-
   return (
-    <div className="app min-h-screen bg-beige-light dark:bg-brown text-brown-dark dark:text-beige-light transition-colors duration-500">
+    <div className="min-h-screen bg-beige-light dark:bg-brown">
       <AuthProvider>
-        <BrowserRouter>
-          <Layout>
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<HomePage />} />
-              <Route path="/properties" element={<PropertiesPage />} />
-              <Route path="/properties/:id" element={<PropertyDetailPage />} />
-              <Route path="/services" element={<ServicesPage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/blog" element={<BlogPage />} />
-              <Route path="/blog/:id" element={<BlogPostPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              
-              {/* Client Dashboard Routes */}
-              <Route path="/client/dashboard" element={<ClientDashboard />} />
-              <Route path="/client/properties/:id" element={<PropertyDetail />} />
-              
-              {/* Auth Routes */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              
-              {/* Admin Routes (Protected) */}
-              <Route 
-                path="/admin/dashboard" 
-                element={<ProtectedRoute element={<AdminDashboard />} requireAdmin={true} />} 
-              />
-              <Route 
-                path="/admin/properties/new" 
-                element={<ProtectedRoute element={<PropertyForm />} requireAdmin={true} />} 
-              />
-              <Route 
-                path="/admin/properties/edit/:id" 
-                element={<ProtectedRoute element={<PropertyForm />} requireAdmin={true} />} 
-              />
-            </Routes>
-          </Layout>
-          <ChatbotWidget />
-        </BrowserRouter>
+        <ErrorBoundary>
+          <BrowserRouter>
+            <Layout>
+              <main className="min-h-screen">
+                <Routes>
+                  {/* Public Routes */}
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/properties" element={<PropertiesPage />} />
+                  <Route path="/properties/:id" element={<PropertyDetailPage />} />
+                  <Route path="/services" element={<ServicesPage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/blog" element={<BlogPage />} />
+                  <Route path="/blog/:id" element={<BlogPostPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  
+                  {/* Client Dashboard Routes */}
+                  <Route path="/client/dashboard" element={<ClientDashboard />} />
+                  <Route path="/client/properties/:id" element={<PropertyDetail />} />
+                  
+                  {/* Auth Routes */}
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  
+                  {/* Admin Routes (Protected) */}
+                  <Route 
+                    path="/admin/dashboard" 
+                    element={<ProtectedRoute element={<AdminDashboard />} requireAdmin={true} />} 
+                  />
+                  <Route 
+                    path="/admin/properties/new" 
+                    element={<ProtectedRoute element={<PropertyForm />} requireAdmin={true} />} 
+                  />
+                  <Route 
+                    path="/admin/properties/edit/:id" 
+                    element={<ProtectedRoute element={<PropertyForm />} requireAdmin={true} />} 
+                  />
+                </Routes>
+              </main>
+            </Layout>
+            <ChatbotWidget />
+          </BrowserRouter>
+        </ErrorBoundary>
       </AuthProvider>
     </div>
   );

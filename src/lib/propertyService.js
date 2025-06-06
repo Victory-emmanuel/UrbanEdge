@@ -51,7 +51,7 @@ export const propertyService = {
    */
   async getPropertyById(id) {
     const { data, error } = await supabase.rpc('get_property_details', {
-      property_id: id
+      p_property_id: id
     });
 
     if (error) {
@@ -90,18 +90,18 @@ export const propertyService = {
   async createProperty(property) {
     // Call the create_property RPC function
     const { data, error } = await supabase.rpc('create_property', {
-      title: property.title,
-      location: property.location,
-      price: property.price,
-      bedrooms: property.bedrooms,
-      bathrooms: property.bathrooms,
-      square_feet: property.squareFeet,
-      description: property.description,
-      floor_plan_url: property.floorPlanUrl,
-      neighborhood: property.neighborhood,
-      property_type_id: property.propertyTypeId,
-      sale_type_id: property.saleTypeId,
-      feature_ids: property.features || []
+      p_title: property.title,
+      p_location: property.location,
+      p_price: property.price,
+      p_bedrooms: property.bedrooms,
+      p_bathrooms: property.bathrooms,
+      p_square_feet: property.squareFeet,
+      p_property_type_id: property.propertyTypeId,
+      p_sale_type_id: property.saleTypeId,
+      p_description: property.description,
+      p_floor_plan_url: property.floorPlanUrl,
+      p_neighborhood: property.neighborhood,
+      p_feature_ids: property.features || []
     });
 
     if (error) return { data: null, error };
@@ -111,9 +111,9 @@ export const propertyService = {
       const propertyId = data.id;
       const imagePromises = property.images.map((image, index) => {
         return supabase.rpc('add_property_image', {
-          property_id: propertyId,
-          image_url: image.url,
-          image_order: index
+          p_property_id: propertyId,
+          p_image_url: image.url,
+          p_image_order: index
         });
       });
 
@@ -182,9 +182,9 @@ export const propertyService = {
       if (property.images.length > 0) {
         const imagePromises = property.images.map((image, index) => {
           return supabase.rpc('add_property_image', {
-            property_id: id,
-            image_url: image.url,
-            image_order: index
+            p_property_id: id,
+            p_image_url: image.url,
+            p_image_order: index
           });
         });
 

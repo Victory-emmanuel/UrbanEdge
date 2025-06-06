@@ -135,7 +135,7 @@ const PropertyDetailPage = () => {
     <>
       <Helmet>
         <title>{property.title} | UrbanEdge Real Estate</title>
-        <meta name="description" content={`${property.title} - ${property.location}. ${property.bedrooms} bedrooms, ${property.bathrooms} bathrooms, ${property.square_feet} sqft. Offered at $${property.price.toLocaleString()}.`} />
+        <meta name="description" content={`${property.title} - ${property.location}. ${property.bedrooms} bedrooms, ${property.bathrooms} bathrooms, ${property.square_feet} sqft. Offered at $${property.price?.toLocaleString() || 'N/A'}.`} />
       </Helmet>
 
       <div className="bg-beige-light dark:bg-brown">
@@ -170,7 +170,7 @@ const PropertyDetailPage = () => {
                   {property.location}
                 </p>
                 <p className="text-2xl font-heading font-bold text-taupe">
-                  ${property.price.toLocaleString()}
+                  ${property.price?.toLocaleString() || 'N/A'}
                 </p>
               </div>
               <div className="flex space-x-3">
