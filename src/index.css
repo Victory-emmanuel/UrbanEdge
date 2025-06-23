@@ -1,0 +1,140 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Marcellus&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+/* Leaflet CSS for map functionality */
+@import 'leaflet/dist/leaflet.css';
+
+/* Custom styles for map clusters */
+.custom-marker-cluster {
+  background: transparent;
+  border: none;
+}
+
+.cluster-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 2px solid white;
+}
+
+.cluster-small {
+  width: 30px;
+  height: 30px;
+  background-color: #B9A590; /* taupe color */
+  font-size: 12px;
+}
+
+.cluster-medium {
+  width: 40px;
+  height: 40px;
+  background-color: #574C3F; /* brown color */
+  font-size: 14px;
+}
+
+.cluster-large {
+  width: 50px;
+  height: 50px;
+  background-color: #36302A; /* brown-dark color */
+  font-size: 16px;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-body bg-beige-light dark:bg-brown text-brown-dark dark:text-beige-light;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl font-bold;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl font-semibold;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl font-semibold;
+  }
+
+  h5 {
+    @apply text-lg md:text-xl font-medium;
+  }
+
+  h6 {
+    @apply text-base md:text-lg font-medium;
+  }
+
+  p {
+    @apply text-base leading-relaxed;
+  }
+
+  a {
+    @apply text-taupe hover:text-brown dark:hover:text-beige-medium transition-colors duration-300;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-md font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply btn bg-taupe text-white hover:bg-brown focus:ring-taupe;
+  }
+
+  .btn-secondary {
+    @apply btn bg-brown-dark text-white hover:bg-brown focus:ring-brown-dark;
+  }
+
+  .btn-outline {
+    @apply btn border-2 border-taupe text-taupe hover:bg-taupe hover:text-white focus:ring-taupe;
+  }
+
+  .card {
+    @apply bg-white dark:bg-brown-dark rounded-lg shadow-md overflow-hidden transition-shadow duration-300 hover:shadow-lg;
+  }
+
+  .input {
+    @apply w-full px-4 py-2 border border-taupe rounded-md focus:outline-none focus:ring-2 focus:ring-taupe bg-white dark:bg-brown-dark text-brown-dark dark:text-beige-light;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  color-scheme: light dark;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+svg {
+  cursor: pointer;
+  transition: 300ms ease-in-out;
+}
