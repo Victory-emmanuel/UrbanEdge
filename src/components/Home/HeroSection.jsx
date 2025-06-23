@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import SearchBar from "../UI/SearchBar";
+import { Link } from "react-router-dom";
 
 const HeroSection = () => {
   return (
@@ -42,8 +42,14 @@ const HeroSection = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <SearchBar className="bg-white/95 dark:bg-brown-dark/95 backdrop-blur-sm" />
+            
           </motion.div>
+          <Link
+            to="/properties"
+            className="inline-block bg-brown text-white font-bold py-3 px-6 rounded-full hover:text-white hover:bg-brown-dark transition duration-300"
+          >
+            Explore Properties
+          </Link>
         </div>
       </div>
     </section>
