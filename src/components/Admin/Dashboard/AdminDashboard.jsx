@@ -1,9 +1,34 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
 import { propertyService } from "../../../lib/propertyService";
 import { userService } from "../../../lib/userService";
 import AdminChatInterface from "../Chat/AdminChatInterface";
+import {
+  HomeIcon,
+  UserIcon,
+  ChatBubbleLeftRightIcon,
+  PlusCircleIcon,
+  TrashIcon,
+  PencilSquareIcon,
+} from "@heroicons/react/24/outline";
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Typography,
+  Button,
+  Tabs,
+  TabsHeader,
+  TabsBody,
+  Tab,
+  TabPanel,
+  Avatar,
+  IconButton,
+  Badge,
+  Chip,
+} from "@material-tailwind/react";
+import { supabase } from "../../../lib/supabase";
 
 /**
  * Admin Dashboard component
@@ -112,188 +137,265 @@ const AdminDashboard = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
-      {/* Tab Navigation */}
-      <div className="border-b border-gray-200 mb-6">
-        <nav className="-mb-px flex space-x-8">
-          <button
-            onClick={() => setActiveTab("properties")}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "properties" ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"}`}
-          >
-            Properties
-          </button>
-          <button
-            onClick={() => setActiveTab("users")}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "users" ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"}`}
-          >
-            Users
-          </button>
-          <button
-            onClick={() => setActiveTab("chat")}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "chat" ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"}`}
-          >
-            Chat Management
-          </button>
-        </nav>
-      </div>
-
-      {/* Properties Tab */}
-      {activeTab === "properties" && (
-        <div>
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold">Property Management</h2>
-            <button
-              onClick={() => navigate("/admin/properties/new")}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              Add New Property
-            </button>
+      <Card className="mb-6 shadow-md">
+        <CardHeader floated={false} shadow={false} className="rounded-none">
+          <div className="mb-4 flex items-center justify-between gap-8">
+            <div>
+              <Typography variant="h4" color="blue-gray">
+                Admin Dashboard
+              </Typography>
+              <Typography color="gray" className="mt-1 font-normal">
+                Manage properties, users, and client communications
+              </Typography>
+            </div>
           </div>
-
-          {loading ? (
-            <div className="text-center py-8">Loading properties...</div>
-          ) : properties.length === 0 ? (
-            <div className="text-center py-8">No properties found.</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full bg-white border border-gray-200">
-                <thead>
-                  <tr>
-                    <th className="py-3 px-4 border-b text-left">Title</th>
-                    <th className="py-3 px-4 border-b text-left">Location</th>
-                    <th className="py-3 px-4 border-b text-left">Price</th>
-                    <th className="py-3 px-4 border-b text-left">Type</th>
-                    <th className="py-3 px-4 border-b text-left">Sale Type</th>
-                    <th className="py-3 px-4 border-b text-left">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {properties.map((property) => (
-                    <tr key={property.id} className="hover:bg-gray-50">
-                      <td className="py-3 px-4 border-b">{property.title}</td>
-                      <td className="py-3 px-4 border-b">
-                        {property.location}
-                      </td>
-                      <td className="py-3 px-4 border-b">
-                        ${property.price.toLocaleString()}
-                      </td>
-                      <td className="py-3 px-4 border-b">
-                        {property.property_type?.name}
-                      </td>
-                      <td className="py-3 px-4 border-b">
-                        {property.sale_type?.name}
-                      </td>
-                      <td className="py-3 px-4 border-b">
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() =>
-                              navigate(`/admin/properties/edit/${property.id}`)
-                            }
-                            className="text-blue-500 hover:text-blue-700"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteProperty(property.id)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            Delete
-                          </button>
-                          <button
-                            onClick={() =>
-                              navigate(`/properties/${property.id}`)
-                            }
-                            className="text-green-500 hover:text-green-700"
-                          >
-                            View
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              {error}
             </div>
           )}
-        </div>
-      )}
+        </CardHeader>
+        <CardBody className="px-0">
+          <Tabs value={activeTab}>
+            <TabsHeader className="bg-transparent">
+              <Tab 
+                value="properties" 
+                onClick={() => setActiveTab("properties")}
+                className="text-sm font-medium"
+              >
+                <div className="flex items-center gap-2">
+                  <HomeIcon className="h-4 w-4" />
+                  Properties
+                </div>
+              </Tab>
+              <Tab 
+                value="users" 
+                onClick={() => setActiveTab("users")}
+                className="text-sm font-medium"
+              >
+                <div className="flex items-center gap-2">
+                  <UserIcon className="h-4 w-4" />
+                  Users
+                </div>
+              </Tab>
+              <Tab 
+                value="chat" 
+                onClick={() => setActiveTab("chat")}
+                className="text-sm font-medium"
+              >
+                <div className="flex items-center gap-2">
+                  <ChatBubbleLeftRightIcon className="h-4 w-4" />
+                  Chat Management
+                </div>
+              </Tab>
+            </TabsHeader>
+            <TabsBody>
 
-      {/* Users Tab */}
-      {activeTab === "users" && (
-        <div>
-          <h2 className="text-xl font-semibold mb-6">User Management</h2>
+              <TabPanel value="properties" className="p-0">
+                <div className="px-4">
+                  <div className="flex justify-between items-center mb-6">
+                    <Typography variant="h5" color="blue-gray">
+                      Property Management
+                    </Typography>
+                    <Button 
+                      onClick={() => navigate("/admin/properties/new")} 
+                      className="flex items-center gap-2"
+                      size="sm"
+                    >
+                      <PlusCircleIcon className="h-4 w-4" /> Add New Property
+                    </Button>
+                  </div>
 
-          {loading ? (
-            <div className="text-center py-8">Loading users...</div>
-          ) : users.length === 0 ? (
-            <div className="text-center py-8">No users found.</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full bg-white border border-gray-200">
-                <thead>
-                  <tr>
-                    <th className="py-3 px-4 border-b text-left">Email</th>
-                    <th className="py-3 px-4 border-b text-left">
-                      Admin Status
-                    </th>
-                    <th className="py-3 px-4 border-b text-left">Created At</th>
-                    <th className="py-3 px-4 border-b text-left">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50">
-                      <td className="py-3 px-4 border-b">{user.email}</td>
-                      <td className="py-3 px-4 border-b">
-                        <span
-                          className={`px-2 py-1 rounded text-xs ${user.is_admin ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
-                        >
-                          {user.is_admin ? "Admin" : "User"}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 border-b">
-                        {new Date(user.created_at).toLocaleDateString()}
-                      </td>
-                      <td className="py-3 px-4 border-b">
-                        <button
-                          onClick={() =>
-                            handleToggleAdminStatus(user.id, user.is_admin)
-                          }
-                          className={`px-3 py-1 rounded text-white ${user.is_admin ? "bg-orange-500 hover:bg-orange-600" : "bg-blue-500 hover:bg-blue-600"}`}
-                        >
-                          {user.is_admin ? "Remove Admin" : "Make Admin"}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
+                  {loading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                      <Typography className="mt-2">Loading properties...</Typography>
+                    </div>
+                  ) : properties.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Typography>No properties found.</Typography>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-max table-auto text-left">
+                        <thead>
+                          <tr>
+                            {["Title", "Location", "Price", "Type", "Sale Type", "Actions"].map((head) => (
+                              <th key={head} className="border-b border-blue-gray-100 bg-blue-gray-50/50 p-4">
+                                <Typography
+                                  variant="small"
+                                  color="blue-gray"
+                                  className="font-normal leading-none opacity-70"
+                                >
+                                  {head}
+                                </Typography>
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {properties.map((property, index) => (
+                            <tr key={property.id} className="even:bg-blue-gray-50/50">
+                              <td className="p-4">
+                                <Typography variant="small" color="blue-gray" className="font-normal">
+                                  {property.title}
+                                </Typography>
+                              </td>
+                              <td className="p-4">
+                                <Typography variant="small" color="blue-gray" className="font-normal">
+                                  {property.location}
+                                </Typography>
+                              </td>
+                              <td className="p-4">
+                                <Typography variant="small" color="blue-gray" className="font-normal">
+                                  ${property.price.toLocaleString()}
+                                </Typography>
+                              </td>
+                              <td className="p-4">
+                                <Chip
+                                  value={property.property_type?.name || "N/A"}
+                                  size="sm"
+                                  variant="ghost"
+                                  color="blue-gray"
+                                />
+                              </td>
+                              <td className="p-4">
+                                <Chip
+                                  value={property.sale_type?.name || "N/A"}
+                                  size="sm"
+                                  variant="ghost"
+                                  color="blue"
+                                />
+                              </td>
+                              <td className="p-4">
+                                <div className="flex gap-2">
+                                  <IconButton
+                                    variant="text"
+                                    color="blue"
+                                    size="sm"
+                                    onClick={() => navigate(`/admin/properties/edit/${property.id}`)}
+                                  >
+                                    <PencilSquareIcon className="h-4 w-4" />
+                                  </IconButton>
+                                  <IconButton
+                                    variant="text"
+                                    color="red"
+                                    size="sm"
+                                    onClick={() => handleDeleteProperty(property.id)}
+                                  >
+                                    <TrashIcon className="h-4 w-4" />
+                                  </IconButton>
+                                  <IconButton
+                                    variant="text"
+                                    color="green"
+                                    size="sm"
+                                    onClick={() => navigate(`/properties/${property.id}`)}
+                                  >
+                                    <HomeIcon className="h-4 w-4" />
+                                  </IconButton>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </TabPanel>
 
-      {/* Chat Tab */}
-      {activeTab === "chat" && (
-        <div>
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-              Chat Management
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300">
-              Manage client conversations and provide support
-            </p>
-          </div>
-          <AdminChatInterface />
-        </div>
-      )}
+              <TabPanel value="users" className="p-0">
+                <div className="px-4">
+                  <div className="flex justify-between items-center mb-6">
+                    <Typography variant="h5" color="blue-gray">
+                      User Management
+                    </Typography>
+                  </div>
+
+                  {loading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                      <Typography className="mt-2">Loading users...</Typography>
+                    </div>
+                  ) : users.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Typography>No users found.</Typography>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-max table-auto text-left">
+                        <thead>
+                          <tr>
+                            {["Email", "Admin Status", "Created At", "Actions"].map((head) => (
+                              <th key={head} className="border-b border-blue-gray-100 bg-blue-gray-50/50 p-4">
+                                <Typography
+                                  variant="small"
+                                  color="blue-gray"
+                                  className="font-normal leading-none opacity-70"
+                                >
+                                  {head}
+                                </Typography>
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {users.map((user, index) => (
+                            <tr key={user.id} className="even:bg-blue-gray-50/50">
+                              <td className="p-4">
+                                <Typography variant="small" color="blue-gray" className="font-normal">
+                                  {user.email}
+                                </Typography>
+                              </td>
+                              <td className="p-4">
+                                <Chip
+                                  value={user.is_admin ? "Admin" : "User"}
+                                  size="sm"
+                                  variant="ghost"
+                                  color={user.is_admin ? "amber" : "blue-gray"}
+                                />
+                              </td>
+                              <td className="p-4">
+                                <Typography variant="small" color="blue-gray" className="font-normal">
+                                  {new Date(user.created_at).toLocaleDateString()}
+                                </Typography>
+                              </td>
+                              <td className="p-4">
+                                <Button
+                                  size="sm"
+                                  color={user.is_admin ? "orange" : "blue"}
+                                  variant="filled"
+                                  onClick={() => handleToggleAdminStatus(user.id, user.is_admin)}
+                                >
+                                  {user.is_admin ? "Remove Admin" : "Make Admin"}
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </TabPanel>
+
+              <TabPanel value="chat" className="p-0">
+                <div className="px-4">
+                  <div className="mb-6">
+                    <Typography variant="h5" color="blue-gray">
+                      Chat Management
+                    </Typography>
+                    <Typography color="gray" className="mt-1">
+                      Manage client conversations and provide support
+                    </Typography>
+                  </div>
+                  <AdminChatInterface />
+                </div>
+              </TabPanel>
+              </TabsBody>
+          </Tabs>
+          </CardBody>
+          </Card>
     </div>
   );
 };

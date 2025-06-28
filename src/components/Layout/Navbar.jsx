@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import ThemeToggle from "../Universal/ThemeToggle";
 import { useAuth } from "../../contexts/AuthContext";
 
 const navLinks = [
@@ -159,7 +158,7 @@ const Navbar = () => {
                 </Link>
               </>
             )}
-            <ThemeToggle className="shadow-md" />
+       
           </div>
 
           {/* Mobile Menu Button */}
@@ -244,7 +243,7 @@ const Navbar = () => {
                 </>
               )}
               <div className="flex items-center justify-between mt-4 pt-4 border-t border-beige-medium dark:border-brown">
-                <ThemeToggle className="shadow-md" />
+              
               </div>
             </div>
           </div>

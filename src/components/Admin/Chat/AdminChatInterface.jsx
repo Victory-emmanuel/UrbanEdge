@@ -8,6 +8,18 @@ import {
 } from "@heroicons/react/24/outline";
 import { chatService } from "../../../lib/chatService";
 import { useAuth } from "../../../contexts/AuthContext";
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  Typography,
+  Button,
+  Input,
+  Chip,
+  Spinner,
+  Badge
+} from "@material-tailwind/react";
 
 /**
  * Admin Chat Interface component for managing client conversations
@@ -197,170 +209,226 @@ const AdminChatInterface = () => {
 
   if (!user || !isAdmin) {
     return (
-      <div className="text-center py-8">
-        <ChatBubbleLeftRightIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-        <p className="text-gray-500">Admin access required</p>
-      </div>
+      <Card className="w-full max-w-md mx-auto mt-8">
+        <CardBody className="text-center">
+          <ChatBubbleLeftRightIcon className="h-12 w-12 text-blue-gray-400 mx-auto mb-4" />
+          <Typography variant="h6" color="blue-gray">
+            Admin Access Required
+          </Typography>
+          <Typography variant="paragraph" color="blue-gray" className="mt-2 font-normal opacity-70">
+            You need administrator privileges to access this feature
+          </Typography>
+        </CardBody>
+      </Card>
     );
   }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <Spinner className="h-12 w-12" color="blue" />
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-brown-dark rounded-lg shadow-sm border border-gray-200 dark:border-brown h-96 flex">
+    <Card className="w-full h-[600px] overflow-hidden">
       {/* Conversations List */}
-      <div className="w-1/3 border-r border-gray-200 dark:border-brown flex flex-col">
-        <div className="p-4 border-b border-gray-200 dark:border-brown">
-          <h3 className="font-semibold text-gray-900 dark:text-white">Client Conversations</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {conversations.length} total conversations
-          </p>
+      <div className="flex h-full">
+        <div className="w-1/3 border-r border-blue-gray-100">
+          <div className="p-4 border-b border-blue-gray-100">
+            <Typography variant="h6" color="blue-gray">
+              Client Conversations
+            </Typography>
+            <Typography variant="small" color="blue-gray" className="font-normal opacity-70">
+              {conversations.length} total conversations
+            </Typography>
+          </div>
+
+          <div className="h-[calc(600px-73px)] overflow-y-auto">
+            {conversations.length === 0 ? (
+              <div className="p-4 text-center">
+                <ChatBubbleLeftRightIcon className="h-8 w-8 mx-auto mb-2 text-blue-gray-300" />
+                <Typography variant="small" color="blue-gray" className="font-normal">
+                  No conversations yet
+                </Typography>
+              </div>
+            ) : (
+              conversations.map((conversation) => (
+                <div
+                  key={conversation.id}
+                  onClick={() => setActiveConversation(conversation)}
+                  className={`p-3 border-b border-blue-gray-50 cursor-pointer hover:bg-blue-gray-50/30 transition-colors ${
+                    activeConversation?.id === conversation.id ? 'bg-blue-50' : ''
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center mb-1">
+                        <UserIcon className="h-4 w-4 text-blue-gray-400 mr-1" />
+                        <Typography 
+                          variant="small" 
+                          color="blue-gray" 
+                          className="font-medium truncate"
+                        >
+                          {conversation.client_email}
+                        </Typography>
+                      </div>
+                      <Typography 
+                        variant="small" 
+                        color="blue-gray" 
+                        className="text-xs opacity-70 truncate"
+                      >
+                        {conversation.subject || 'General Inquiry'}
+                      </Typography>
+                      <div className="flex items-center mt-1">
+                        {conversation.admin_id ? (
+                          <Chip
+                            size="sm"
+                            variant="ghost"
+                            value={
+                              <div className="flex items-center gap-1">
+                                <CheckIcon className="h-3 w-3" />
+                                <span>Assigned</span>
+                              </div>
+                            }
+                            color="green"
+                            className="text-xs py-0.5 px-1"
+                          />
+                        ) : (
+                          <Chip
+                            size="sm"
+                            variant="ghost"
+                            value={
+                              <div className="flex items-center gap-1">
+                                <ClockIcon className="h-3 w-3" />
+                                <span>Unassigned</span>
+                              </div>
+                            }
+                            color="amber"
+                            className="text-xs py-0.5 px-1"
+                          />
+                        )}
+                        <Typography 
+                          variant="small" 
+                          className="text-xs text-blue-gray-400 ml-2"
+                        >
+                          {formatConversationTime(conversation.updated_at)}
+                        </Typography>
+                      </div>
+                    </div>
+                    {conversation.unread_count > 0 && (
+                      <Badge content={conversation.unread_count} color="blue">
+                        <div className="w-5 h-5"></div>
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
-          {conversations.length === 0 ? (
-            <div className="p-4 text-center text-gray-500 dark:text-gray-400">
-              <ChatBubbleLeftRightIcon className="h-8 w-8 mx-auto mb-2" />
-              <p className="text-sm">No conversations yet</p>
-            </div>
-          ) : (
-            conversations.map((conversation) => (
-              <div
-                key={conversation.id}
-                onClick={() => setActiveConversation(conversation)}
-                className={`p-3 border-b border-gray-100 dark:border-brown/50 cursor-pointer hover:bg-gray-50 dark:hover:bg-brown/30 ${
-                  activeConversation?.id === conversation.id ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center mb-1">
-                      <UserIcon className="h-4 w-4 text-gray-400 mr-1" />
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {conversation.client_email}
-                      </p>
-                    </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-300 truncate">
-                      {conversation.subject || 'General Inquiry'}
-                    </p>
-                    <div className="flex items-center mt-1">
-                      {conversation.admin_id ? (
-                        <div className="flex items-center text-xs text-green-600">
-                          <CheckIcon className="h-3 w-3 mr-1" />
-                          Assigned
-                        </div>
-                      ) : (
-                        <div className="flex items-center text-xs text-orange-600">
-                          <ClockIcon className="h-3 w-3 mr-1" />
-                          Unassigned
-                        </div>
-                      )}
-                      <span className="text-xs text-gray-400 ml-2">
-                        {formatConversationTime(conversation.updated_at)}
-                      </span>
-                    </div>
+        {/* Chat Area */}
+        <div className="flex-1">
+          {activeConversation ? (
+            <div className="flex flex-col h-full">
+              {/* Chat Header */}
+              <div className="p-4 border-b border-blue-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Typography variant="h6" color="blue-gray">
+                      {activeConversation.subject || 'General Inquiry'}
+                    </Typography>
+                    <Typography variant="small" color="blue-gray" className="font-normal opacity-70">
+                      Client: {activeConversation.client_email}
+                    </Typography>
                   </div>
-                  {conversation.unread_count > 0 && (
-                    <span className="bg-blue-600 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
-                      {conversation.unread_count}
-                    </span>
+                  {!activeConversation.admin_id && (
+                    <Button
+                      size="sm"
+                      color="blue"
+                      onClick={() => handleAssignToSelf(activeConversation.id)}
+                    >
+                      Assign to Me
+                    </Button>
                   )}
                 </div>
               </div>
-            ))
+
+              {/* Messages */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex ${message.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                        message.sender_id === user.id
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-blue-gray-50 text-blue-gray-800'
+                      }`}
+                    >
+                      <Typography variant="small" className="font-normal">
+                        {message.content}
+                      </Typography>
+                      <Typography 
+                        variant="small" 
+                        className={`text-xs mt-1 ${
+                          message.sender_id === user.id ? 'text-blue-100' : 'text-blue-gray-500'
+                        }`}
+                      >
+                        {message.sender_is_admin ? 'Admin' : 'Client'} • {formatMessageTime(message.created_at)}
+                      </Typography>
+                    </div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Message Input */}
+              <CardFooter className="p-4 border-t border-blue-gray-50">
+                <form onSubmit={handleSendMessage} className="w-full">
+                  <div className="flex gap-2">
+                    <div className="w-full">
+                      <Input
+                        type="text"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder="Type your response..."
+                        className="!border-blue-gray-200 focus:!border-blue-500"
+                        labelProps={{
+                          className: "hidden",
+                        }}
+                        disabled={sending}
+                      />
+                    </div>
+                    <Button
+                      type="submit"
+                      disabled={!newMessage.trim() || sending}
+                      className="p-2 flex items-center justify-center"
+                      color="blue"
+                    >
+                      <PaperAirplaneIcon className="h-5 w-5" />
+                    </Button>
+                  </div>
+                </form>
+              </CardFooter>
+            </div>
+          ) : (
+            <div className="h-full flex items-center justify-center">
+              <div className="text-center">
+                <ChatBubbleLeftRightIcon className="h-12 w-12 mx-auto mb-4 text-blue-gray-300" />
+                <Typography color="blue-gray" className="font-normal">
+                  Select a conversation to start responding
+                </Typography>
+              </div>
+            </div>
           )}
         </div>
       </div>
-
-      {/* Chat Area */}
-      <div className="flex-1 flex flex-col">
-        {activeConversation ? (
-          <>
-            {/* Chat Header */}
-            <div className="p-4 border-b border-gray-200 dark:border-brown">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white">
-                    {activeConversation.subject || 'General Inquiry'}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Client: {activeConversation.client_email}
-                  </p>
-                </div>
-                {!activeConversation.admin_id && (
-                  <button
-                    onClick={() => handleAssignToSelf(activeConversation.id)}
-                    className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
-                  >
-                    Assign to Me
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                      message.sender_id === user.id
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-200 dark:bg-brown text-gray-900 dark:text-white'
-                    }`}
-                  >
-                    <p className="text-sm">{message.content}</p>
-                    <p className={`text-xs mt-1 ${
-                      message.sender_id === user.id ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'
-                    }`}>
-                      {message.sender_is_admin ? 'Admin' : 'Client'} • {formatMessageTime(message.created_at)}
-                    </p>
-                  </div>
-                </div>
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Message Input */}
-            <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200 dark:border-brown">
-              <div className="flex space-x-2">
-                <input
-                  type="text"
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Type your response..."
-                  className="flex-1 p-2 border border-gray-300 dark:border-brown rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-brown-dark text-gray-900 dark:text-white"
-                  disabled={sending}
-                />
-                <button
-                  type="submit"
-                  disabled={!newMessage.trim() || sending}
-                  className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <PaperAirplaneIcon className="h-5 w-5" />
-                </button>
-              </div>
-            </form>
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center text-gray-500 dark:text-gray-400">
-              <ChatBubbleLeftRightIcon className="h-12 w-12 mx-auto mb-4" />
-              <p>Select a conversation to start responding</p>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+    </Card>
   );
 };
 

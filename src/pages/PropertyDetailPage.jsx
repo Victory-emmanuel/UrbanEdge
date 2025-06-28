@@ -14,7 +14,7 @@ import PropertyGallery from "../components/Properties/PropertyDetail/PropertyGal
 import PropertyFeatures from "../components/Properties/PropertyDetail/PropertyFeatures";
 import PropertyTabs from "../components/Properties/PropertyDetail/PropertyTabs";
 import PropertyContactForm from "../components/Properties/PropertyDetail/PropertyContactForm";
-import PropertyMortgageCalculator from "../components/Properties/PropertyDetail/PropertyMortgageCalculator";
+// import PropertyMortgageCalculator from "../components/Properties/PropertyDetail/PropertyMortgageCalculator";
 import SimilarProperties from "../components/Properties/PropertyDetail/SimilarProperties";
 import PropertyLocationMap from "../components/Map/PropertyLocationMap";
 
@@ -313,7 +313,7 @@ const PropertyDetailPage = () => {
                 />
               </motion.div>
 
-              <PropertyMortgageCalculator propertyPrice={property?.price || 0} />
+              {/* <PropertyMortgageCalculator propertyPrice={property?.price || 0} /> */}
             </div>
           </div>
 
