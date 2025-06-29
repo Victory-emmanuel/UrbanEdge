@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { 
+import {
   ChatBubbleLeftRightIcon,
   PaperAirplaneIcon,
   XMarkIcon,
-  PlusIcon
+  PlusIcon,
 } from "@heroicons/react/24/outline";
 import { chatService } from "../../../lib/chatService";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -17,7 +17,7 @@ import {
   Input,
   Spinner,
   Chip,
-  Badge
+  Badge,
 } from "@material-tailwind/react";
 
 /**
@@ -68,10 +68,10 @@ const ChatInterface = () => {
     try {
       setLoading(true);
       const { data, error } = await chatService.getUserConversations();
-      
+
       if (error) throw error;
       setConversations(data || []);
-      
+
       // Auto-select first conversation if available
       if (data && data.length > 0 && !activeConversation) {
         setActiveConversation(data[0]);
@@ -87,8 +87,10 @@ const ChatInterface = () => {
     if (!activeConversation) return;
 
     try {
-      const { data, error } = await chatService.getConversationMessages(activeConversation.id);
-      
+      const { data, error } = await chatService.getConversationMessages(
+        activeConversation.id
+      );
+
       if (error) throw error;
       setMessages(data || []);
     } catch (error) {
@@ -103,8 +105,8 @@ const ChatInterface = () => {
       activeConversation.id,
       (payload) => {
         const newMessage = payload.new;
-        setMessages(prev => [...prev, newMessage]);
-        
+        setMessages((prev) => [...prev, newMessage]);
+
         // Mark as read if not sent by current user
         if (newMessage.sender_id !== user.id) {
           markMessagesAsRead();
@@ -119,9 +121,9 @@ const ChatInterface = () => {
     try {
       await chatService.markMessagesAsRead(activeConversation.id);
       // Update conversation unread count
-      setConversations(prev => 
-        prev.map(conv => 
-          conv.id === activeConversation.id 
+      setConversations((prev) =>
+        prev.map((conv) =>
+          conv.id === activeConversation.id
             ? { ...conv, unread_count: 0 }
             : conv
         )
@@ -143,7 +145,7 @@ const ChatInterface = () => {
       );
 
       if (error) throw error;
-      
+
       setNewMessage("");
       // Message will be added via subscription
     } catch (error) {
@@ -158,10 +160,12 @@ const ChatInterface = () => {
     if (!newConversationSubject.trim()) return;
 
     try {
-      const { data, error } = await chatService.createConversation(newConversationSubject.trim());
-      
+      const { data, error } = await chatService.createConversation(
+        newConversationSubject.trim()
+      );
+
       if (error) throw error;
-      
+
       setNewConversationSubject("");
       setShowNewConversation(false);
       await fetchConversations();
@@ -173,245 +177,295 @@ const ChatInterface = () => {
 
   const formatMessageTime = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
-  if (!user) {
-    return (
-      <Card className="text-center py-8 max-w-md mx-auto">
-        <CardBody className="flex flex-col items-center">
-          <ChatBubbleLeftRightIcon className="h-12 w-12 text-blue-gray-300 mx-auto mb-4" />
-          <Typography color="blue-gray" className="font-normal">
-            Please sign in to access chat
-          </Typography>
-        </CardBody>
-      </Card>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <Spinner className="h-8 w-8" color="blue" />
-      </div>
-    );
-  }
-
   return (
-    <Card className="h-96 overflow-hidden">
-      <div className="flex h-full">
-        {/* Conversations List */}
-        <div className="w-1/3 border-r border-blue-gray-100 flex flex-col">
-          <div className="p-4 border-b border-blue-gray-100">
-            <div className="flex items-center justify-between">
-              <Typography variant="h6" color="blue-gray">
-                Conversations
-              </Typography>
-              <Button
-                variant="text"
-                size="sm"
-                color="blue"
-                onClick={() => setShowNewConversation(true)}
-                className="p-1 flex items-center justify-center"
-              >
-                <PlusIcon className="h-5 w-5" />
-              </Button>
+    <>
+      {!user ? (
+        <Card className="w-full max-w-md mx-auto mt-8 shadow-lg">
+          <CardBody className="text-center p-6">
+            <div className="bg-taupe/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <ChatBubbleLeftRightIcon className="h-8 w-8 text-taupe" />
             </div>
-          </div>
-
-        <div className="flex-1 overflow-y-auto">
-          {conversations.length === 0 ? (
-            <div className="p-4 text-center">
-              <ChatBubbleLeftRightIcon className="h-8 w-8 mx-auto mb-2 text-blue-gray-300" />
-              <Typography variant="small" color="blue-gray" className="font-normal">
-                No conversations yet
-              </Typography>
-              <Button
-                variant="text"
-                size="sm"
-                color="blue"
-                onClick={() => setShowNewConversation(true)}
-                className="mt-2"
-              >
-                Start a conversation
-              </Button>
-            </div>
-          ) : (
-            conversations.map((conversation) => (
-              <div
-                key={conversation.id}
-                onClick={() => setActiveConversation(conversation)}
-                className={`p-3 border-b border-blue-gray-50 cursor-pointer hover:bg-blue-gray-50/50 ${
-                  activeConversation?.id === conversation.id ? 'bg-blue-50' : ''
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <Typography 
-                      variant="small" 
-                      color="blue-gray" 
-                      className="font-medium truncate"
-                    >
-                      {conversation.subject || 'General Inquiry'}
-                    </Typography>
-                    <Typography 
-                      variant="small" 
-                      color="blue-gray" 
-                      className="text-xs opacity-70"
-                    >
-                      {conversation.admin_email ? `Admin: ${conversation.admin_email}` : 'Waiting for admin'}
-                    </Typography>
-                  </div>
-                  {conversation.unread_count > 0 && (
-                    <Badge content={conversation.unread_count} color="blue" />
-                  )}
-                </div>
-              </div>
-            ))
-          )}
+            <Typography variant="h5" color="blue-gray" className="font-medium">
+              Sign in to access chat support
+            </Typography>
+            <Typography variant="paragraph" className="mt-2 text-gray-600">
+              Please sign in to chat with our support team.
+            </Typography>
+            <Button
+              variant="filled"
+              size="lg"
+              className="mt-6 bg-taupe hover:bg-taupe/90 shadow-md"
+              onClick={() => navigate("/login")}
+            >
+              Sign In
+            </Button>
+          </CardBody>
+        </Card>
+      ) : loading ? (
+        <div className="flex flex-col justify-center items-center h-64 gap-4">
+          <Spinner className="h-12 w-12 text-taupe" />
+          <Typography variant="lead" color="blue-gray">
+            Loading conversations...
+          </Typography>
         </div>
-      </div>
-
-        {/* Chat Area */}
-        <div className="flex-1">
-          {showNewConversation ? (
-            <div className="h-full flex flex-col">
-              <div className="p-4 border-b border-blue-gray-100">
-                <div className="flex items-center justify-between mb-2">
-                  <Typography variant="h6" color="blue-gray">
-                    New Conversation
-                  </Typography>
-                  <Button
-                    variant="text"
-                    size="sm"
-                    color="blue-gray"
-                    onClick={() => setShowNewConversation(false)}
-                    className="p-1 flex items-center justify-center"
-                  >
-                    <XMarkIcon className="h-5 w-5" />
-                  </Button>
-                </div>
+      ) : (
+        <Card className="h-[600px] overflow-hidden shadow-lg">
+          <div className="flex h-full rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700">
+            {/* Conversations List */}
+            <div className="w-1/3 border-r border-gray-200 dark:border-gray-700 overflow-y-auto bg-white dark:bg-brown-dark/30">
+              <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-brown-dark/50">
+                <Typography
+                  variant="h6"
+                  className="font-medium text-brown-dark dark:text-beige-light"
+                >
+                  Conversations
+                </Typography>
+                <Button
+                  variant="text"
+                  size="sm"
+                  className="flex items-center text-taupe normal-case"
+                  onClick={() => setShowNewConversation(true)}
+                >
+                  <PlusCircleIcon className="h-5 w-5 mr-1" />
+                  New
+                </Button>
               </div>
-              
-              <CardBody>
-                <form onSubmit={handleCreateConversation} className="flex flex-col h-full">
-                  <div className="flex-1">
-                    <Input
-                      type="text"
-                      value={newConversationSubject}
-                      onChange={(e) => setNewConversationSubject(e.target.value)}
-                      placeholder="What would you like to discuss?"
-                      className="!border-blue-gray-200 focus:!border-blue-500"
-                      labelProps={{
-                        className: "hidden",
-                      }}
-                      autoFocus
-                    />
-                  </div>
-                  <div className="mt-4 flex justify-end gap-2">
+
+              <div className="overflow-y-auto">
+                {conversations.length === 0 ? (
+                  <div className="p-4 text-center">
+                    <ChatBubbleLeftRightIcon className="h-8 w-8 mx-auto mb-2 text-blue-gray-300" />
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      No conversations yet
+                    </Typography>
                     <Button
                       variant="text"
-                      color="blue-gray"
+                      size="sm"
+                      color="blue"
+                      onClick={() => setShowNewConversation(true)}
+                      className="mt-2"
+                    >
+                      Start a conversation
+                    </Button>
+                  </div>
+                ) : (
+                  conversations.map((conversation) => (
+                    <div
+                      key={conversation.id}
+                      onClick={() => setActiveConversation(conversation)}
+                      className={`p-4 border-b border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-colors ${
+                        activeConversation?.id === conversation.id
+                          ? "bg-gray-100 dark:bg-gray-800/70 border-l-4 border-l-taupe"
+                          : ""
+                      }`}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <Typography
+                            variant="h6"
+                            className="text-sm font-medium text-brown-dark dark:text-beige-light"
+                          >
+                            {conversation.subject || "General Inquiry"}
+                          </Typography>
+                          <Typography
+                            variant="small"
+                            className="text-gray-500 dark:text-gray-400"
+                          >
+                            {conversation.admin_email
+                              ? `Admin: ${conversation.admin_email}`
+                              : "Waiting for admin"}
+                          </Typography>
+                        </div>
+                        {conversation.unread_count > 0 && (
+                          <Badge
+                            content={conversation.unread_count}
+                            color="red"
+                            className="flex items-center justify-center"
+                          />
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Chat Area */}
+            <div className="w-2/3 flex flex-col bg-gray-50 dark:bg-brown-dark/20">
+              {showNewConversation ? (
+                <div className="flex flex-col h-full p-6">
+                  <div className="mb-6">
+                    <Typography
+                      variant="h5"
+                      className="font-medium text-brown-dark dark:text-beige-light"
+                    >
+                      New Conversation
+                    </Typography>
+                    <Typography
+                      variant="small"
+                      className="text-gray-600 dark:text-gray-400 mt-1"
+                    >
+                      Start a new conversation with our support team
+                    </Typography>
+                  </div>
+                  <Card className="p-4 mb-6 shadow-md">
+                    <Input
+                      type="text"
+                      label="Subject"
+                      size="lg"
+                      value={newConversationSubject}
+                      onChange={(e) =>
+                        setNewConversationSubject(e.target.value)
+                      }
+                      className="mb-2"
+                    />
+                    <Typography
+                      variant="small"
+                      className="text-gray-600 dark:text-gray-400 mt-1"
+                    >
+                      Please provide a brief subject for your conversation
+                    </Typography>
+                  </Card>
+                  <div className="flex space-x-3 mt-auto">
+                    <Button
+                      variant="outlined"
+                      color="red"
+                      className="flex-1 normal-case"
                       onClick={() => setShowNewConversation(false)}
                     >
                       Cancel
                     </Button>
                     <Button
-                      type="submit"
-                      color="blue"
+                      variant="filled"
+                      className="flex-1 bg-taupe hover:bg-taupe/90 normal-case shadow-md"
+                      onClick={handleCreateConversation}
                       disabled={!newConversationSubject.trim()}
                     >
                       Start Conversation
                     </Button>
                   </div>
-                </form>
-              </CardBody>
-            </div>
-          ) : activeConversation ? (
-            <div className="flex flex-col h-full">
-              {/* Chat Header */}
-              <div className="p-4 border-b border-blue-gray-100">
-                <Typography variant="h6" color="blue-gray">
-                  {activeConversation.subject || 'General Inquiry'}
-                </Typography>
-                <Typography variant="small" color="blue-gray" className="font-normal opacity-70">
-                  {activeConversation.admin_email ? `Chatting with ${activeConversation.admin_email}` : 'Waiting for admin to join...'}
-                </Typography>
-              </div>
-
-              {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${message.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div
-                      className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                        message.sender_id === user.id
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-blue-gray-50 text-blue-gray-800'
-                      }`}
+                </div>
+              ) : activeConversation ? (
+                <div className="flex flex-col h-full">
+                  <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-brown-dark/40 shadow-sm">
+                    <Typography
+                      variant="h5"
+                      className="font-medium text-brown-dark dark:text-beige-light"
                     >
-                      <Typography variant="small" className="font-normal">
-                        {message.content}
-                      </Typography>
-                      <Typography 
-                        variant="small" 
-                        className={`text-xs mt-1 ${
-                          message.sender_id === user.id ? 'text-blue-100' : 'text-blue-gray-500'
-                        }`}
+                      {activeConversation.subject || "General Inquiry"}
+                    </Typography>
+                    <Typography
+                      variant="small"
+                      className="text-gray-600 dark:text-gray-400"
+                    >
+                      {activeConversation.admin_email
+                        ? `Support: ${activeConversation.admin_email}`
+                        : "Urban Edge Support"}
+                    </Typography>
+                  </div>
+                  <div className="flex-1 p-6 overflow-y-auto bg-gray-50 dark:bg-brown-dark/20">
+                    {messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`flex ${
+                          message.sender_id === user.id
+                            ? "justify-end"
+                            : "justify-start"
+                        } mb-4`}
                       >
-                        {formatMessageTime(message.created_at)}
-                      </Typography>
-                    </div>
+                        <div
+                          className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg shadow-sm ${
+                            message.sender_id === user.id
+                              ? "bg-taupe text-white"
+                              : "bg-white dark:bg-brown-dark/40 text-gray-800 dark:text-gray-200"
+                          }`}
+                        >
+                          <Typography variant="small" className="font-normal">
+                            {message.content}
+                          </Typography>
+                          <Typography
+                            variant="small"
+                            className={`text-xs mt-1 ${
+                              message.sender_id === user.id
+                                ? "text-blue-100"
+                                : "text-blue-gray-500 dark:text-gray-400"
+                            }`}
+                          >
+                            {formatMessageTime(message.created_at)}
+                          </Typography>
+                        </div>
+                      </div>
+                    ))}
+                    <div ref={messagesEndRef} />
                   </div>
-                ))}
-                <div ref={messagesEndRef} />
-              </div>
-
-              {/* Message Input */}
-              <CardFooter className="p-4 border-t border-blue-gray-50">
-                <form onSubmit={handleSendMessage} className="w-full">
-                  <div className="flex gap-2">
-                    <div className="w-full">
-                      <Input
-                        type="text"
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder="Type your message..."
-                        className="!border-blue-gray-200 focus:!border-blue-500"
-                        labelProps={{
-                          className: "hidden",
-                        }}
-                        disabled={sending}
-                      />
-                    </div>
-                    <Button
-                      type="submit"
-                      disabled={!newMessage.trim() || sending}
-                      className="p-2 flex items-center justify-center"
-                      color="blue"
-                    >
-                      <PaperAirplaneIcon className="h-5 w-5" />
-                    </Button>
+                  <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-brown-dark/40">
+                    <form onSubmit={handleSendMessage} className="w-full">
+                      <div className="flex gap-2">
+                        <div className="w-full">
+                          <Input
+                            type="text"
+                            value={newMessage}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                            placeholder="Type your message..."
+                            className="!border-blue-gray-200 focus:!border-blue-500 shadow-sm"
+                            labelProps={{
+                              className: "hidden",
+                            }}
+                            disabled={sending}
+                            size="lg"
+                          />
+                        </div>
+                        <Button
+                          type="submit"
+                          disabled={!newMessage.trim() || sending}
+                          className="p-2 flex items-center justify-center bg-taupe hover:bg-taupe/90 shadow-md"
+                        >
+                          <PaperAirplaneIcon className="h-5 w-5" />
+                        </Button>
+                      </div>
+                    </form>
                   </div>
-                </form>
-              </CardFooter>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+                  <div className="bg-taupe/10 rounded-full w-20 h-20 flex items-center justify-center mb-6">
+                    <ChatBubbleLeftRightIcon className="h-10 w-10 text-taupe" />
+                  </div>
+                  <Typography
+                    variant="h5"
+                    className="mb-2 font-medium text-brown-dark dark:text-beige-light"
+                  >
+                    Select a conversation or start a new one
+                  </Typography>
+                  <Typography
+                    variant="paragraph"
+                    className="text-gray-600 dark:text-gray-400 max-w-md"
+                  >
+                    Choose an existing conversation from the list or create a
+                    new one to start chatting with our support team.
+                  </Typography>
+                  <Button
+                    variant="filled"
+                    className="mt-6 bg-taupe hover:bg-taupe/90 shadow-md normal-case"
+                    onClick={() => setShowNewConversation(true)}
+                  >
+                    <PlusCircleIcon className="h-5 w-5 mr-2" />
+                    Start New Conversation
+                  </Button>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="h-full flex items-center justify-center">
-              <div className="text-center">
-                <ChatBubbleLeftRightIcon className="h-12 w-12 mx-auto mb-4 text-blue-gray-300" />
-                <Typography color="blue-gray" className="font-normal">
-                  Select a conversation to start chatting
-                </Typography>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </Card>
+          </div>
+        </Card>
+      )}
+    </>
   );
 };
 

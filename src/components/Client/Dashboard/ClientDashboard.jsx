@@ -2,15 +2,26 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   HeartIcon,
-  MagnifyingGlassIcon,
   HomeIcon,
-  ChatBubbleLeftRightIcon
+  ChatBubbleLeftRightIcon,
+  MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import { favoritesService } from "../../../lib/favoritesService";
 import { useAuth } from "../../../contexts/AuthContext";
 import PropertyCard from "../../UI/PropertyCard";
-import RecentProperties from "./RecentProperties";
-import ChatInterface from "../Chat/ChatInterface";
+import RecentProperties from "../Dashboard/RecentProperties";
+import ChatInterface from "../../Client/Chat/ChatInterface";
+import {
+  Card,
+  CardBody,
+  Typography,
+  Button,
+  Tabs,
+  TabsHeader,
+  Tab,
+  Spinner,
+  Alert,
+} from "@material-tailwind/react";
 
 /**
  * Client Dashboard component for displaying user's favorite properties, recent properties, and chat
@@ -105,14 +116,14 @@ const ClientDashboard = () => {
   if (loading) {
     return (
       <div className="container mx-auto p-6 text-center">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mx-auto mb-4"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            ))}
+        <Card className="p-6 shadow-sm">
+          <div className="flex justify-center items-center flex-col gap-4">
+            <Spinner className="h-12 w-12" color="blue" />
+            <Typography variant="h6" color="blue-gray">
+              Loading your dashboard...
+            </Typography>
           </div>
-        </div>
+        </Card>
       </div>
     );
   }
@@ -121,81 +132,82 @@ const ClientDashboard = () => {
   if (!user) {
     return (
       <div className="container mx-auto p-6 text-center">
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-8">
-          <HeartIcon className="h-16 w-16 text-blue-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            Sign In to View Your Favorites
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300 mb-6">
-            Create an account or sign in to save your favorite properties and access them anytime.
-          </p>
-          <Link
-            to="/auth"
-            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Sign In / Sign Up
-          </Link>
-        </div>
+        <Card className="p-8 shadow-sm">
+          <CardBody className="flex flex-col items-center">
+            <HeartIcon className="h-16 w-16 text-blue-500 mb-4" />
+            <Typography variant="h4" color="blue-gray" className="mb-2">
+              Sign In to View Your Favorites
+            </Typography>
+            <Typography variant="paragraph" color="blue-gray" className="mb-6 opacity-70">
+              Create an account or sign in to save your favorite properties and access them anytime.
+            </Typography>
+            <Link to="/auth">
+              <Button size="lg" color="blue">
+                Sign In / Sign Up
+              </Button>
+            </Link>
+          </CardBody>
+        </Card>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto p-6">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Client Dashboard
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Manage your favorite properties, view recent listings, and chat with our team
-          </p>
+      <Card className="p-4 shadow-sm">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <Typography variant="h3" color="blue-gray" className="mb-2">
+              Client Dashboard
+            </Typography>
+            <Typography variant="paragraph" color="blue-gray" className="opacity-70">
+              Manage your favorite properties, view recent listings, and chat with our team
+            </Typography>
+          </div>
+          <Link to="/properties">
+            <Button className="flex items-center gap-2" color="blue">
+              <MagnifyingGlassIcon className="h-5 w-5" />
+              Browse Properties
+            </Button>
+          </Link>
         </div>
-        <Link
-          to="/properties"
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <MagnifyingGlassIcon className="h-5 w-5 mr-2" />
-          Browse Properties
-        </Link>
-      </div>
+        </Card>
 
       {/* Navigation Tabs */}
       <div className="mb-8">
-        <nav className="flex space-x-8">
-          <button
-            onClick={() => setActiveTab("overview")}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
-              activeTab === "overview"
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            }`}
-          >
-            Overview
-          </button>
-          <button
-            onClick={() => setActiveTab("favorites")}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
-              activeTab === "favorites"
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            }`}
-          >
-            <HeartIcon className="h-4 w-4 inline mr-1" />
-            Favorites ({favoritesCount})
-          </button>
-          <button
-            onClick={() => setActiveTab("chat")}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
-              activeTab === "chat"
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            }`}
-          >
-            <ChatBubbleLeftRightIcon className="h-4 w-4 inline mr-1" />
-            Chat Support
-          </button>
-        </nav>
+        <Tabs value={activeTab} className="w-full">
+          <TabsHeader>
+            <Tab 
+              value="overview" 
+              onClick={() => setActiveTab("overview")}
+              className={activeTab === "overview" ? "text-blue-500" : ""}
+            >
+              <div className="flex items-center gap-2">
+                Overview
+              </div>
+            </Tab>
+            <Tab 
+              value="favorites" 
+              onClick={() => setActiveTab("favorites")}
+              className={activeTab === "favorites" ? "text-blue-500" : ""}
+            >
+              <div className="flex items-center gap-2">
+                <HeartIcon className="h-4 w-4" />
+                Favorites ({favoritesCount})
+              </div>
+            </Tab>
+            <Tab 
+              value="chat" 
+              onClick={() => setActiveTab("chat")}
+              className={activeTab === "chat" ? "text-blue-500" : ""}
+            >
+              <div className="flex items-center gap-2">
+                <ChatBubbleLeftRightIcon className="h-4 w-4" />
+                Chat Support
+              </div>
+            </Tab>
+          </TabsHeader>
+        </Tabs>
       </div>
 
       {/* Tab Content */}
@@ -206,35 +218,47 @@ const ClientDashboard = () => {
 
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white dark:bg-brown-dark rounded-lg shadow-sm border border-gray-200 dark:border-brown p-6">
-              <div className="flex items-center">
-                <HeartIcon className="h-8 w-8 text-red-500 mr-3" />
-                <div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{favoritesCount}</p>
-                  <p className="text-gray-600 dark:text-gray-300">Favorite Properties</p>
+            <Card className="shadow-sm">
+              <CardBody className="p-4">
+                <div className="flex items-center">
+                  <div className="rounded-full bg-red-50 p-3 mr-4">
+                    <HeartIcon className="h-6 w-6 text-red-500" />
+                  </div>
+                  <div>
+                    <Typography variant="h4" color="blue-gray">{favoritesCount}</Typography>
+                    <Typography variant="paragraph" color="blue-gray" className="opacity-70">Favorite Properties</Typography>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </CardBody>
+            </Card>
 
-            <div className="bg-white dark:bg-brown-dark rounded-lg shadow-sm border border-gray-200 dark:border-brown p-6">
-              <div className="flex items-center">
-                <HomeIcon className="h-8 w-8 text-blue-500 mr-3" />
-                <div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">4</p>
-                  <p className="text-gray-600 dark:text-gray-300">Recent Properties</p>
+            <Card className="shadow-sm">
+              <CardBody className="p-4">
+                <div className="flex items-center">
+                  <div className="rounded-full bg-blue-50 p-3 mr-4">
+                    <HomeIcon className="h-6 w-6 text-blue-500" />
+                  </div>
+                  <div>
+                    <Typography variant="h4" color="blue-gray">4</Typography>
+                    <Typography variant="paragraph" color="blue-gray" className="opacity-70">Recent Properties</Typography>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </CardBody>
+            </Card>
 
-            <div className="bg-white dark:bg-brown-dark rounded-lg shadow-sm border border-gray-200 dark:border-brown p-6">
-              <div className="flex items-center">
-                <ChatBubbleLeftRightIcon className="h-8 w-8 text-green-500 mr-3" />
-                <div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">24/7</p>
-                  <p className="text-gray-600 dark:text-gray-300">Chat Support</p>
+            <Card className="shadow-sm">
+              <CardBody className="p-4">
+                <div className="flex items-center">
+                  <div className="rounded-full bg-green-50 p-3 mr-4">
+                    <ChatBubbleLeftRightIcon className="h-6 w-6 text-green-500" />
+                  </div>
+                  <div>
+                    <Typography variant="h4" color="blue-gray">24/7</Typography>
+                    <Typography variant="paragraph" color="blue-gray" className="opacity-70">Chat Support</Typography>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </CardBody>
+            </Card>
           </div>
         </div>
       )}
@@ -242,21 +266,21 @@ const ClientDashboard = () => {
       {activeTab === "favorites" && (
         <div>
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            <Typography variant="h4" color="blue-gray" className="mb-2">
               My Favorite Properties
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300">
+            </Typography>
+            <Typography variant="paragraph" color="blue-gray" className="opacity-70">
               {favoritesCount === 0
                 ? "You haven't saved any properties yet"
                 : `You have ${favoritesCount} favorite ${favoritesCount === 1 ? 'property' : 'properties'}`
               }
-            </p>
+            </Typography>
           </div>
 
           {error && (
-            <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-6">
+            <Alert color="red" className="mb-6">
               {error}
-            </div>
+            </Alert>
           )}
 
           {/* Favorite Properties Grid */}
@@ -273,23 +297,26 @@ const ClientDashboard = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16">
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-12">
-                <HeartIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">
-                  No Favorite Properties Yet
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-md mx-auto">
-                  Start exploring our property listings and save your favorites by clicking the heart icon on any property card.
-                </p>
-                <Link
-                  to="/properties"
-                  className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <HomeIcon className="h-5 w-5 mr-2" />
-                  Explore Properties
-                </Link>
-              </div>
+            <div className="text-center py-8">
+              <Card className="p-8">
+                <CardBody className="flex flex-col items-center">
+                  <div className="rounded-full bg-gray-100 p-4 mb-4">
+                    <HeartIcon className="h-12 w-12 text-gray-400" />
+                  <Typography variant="h5" color="blue-gray" className="mb-2">
+                    No Favorite Properties Yet
+                  </Typography>
+                  <Typography variant="paragraph" color="blue-gray" className="mb-6 max-w-md mx-auto opacity-70">
+                    Start exploring our property listings and save your favorites by clicking the heart icon on any property card.
+                  </Typography>
+                  <Link to="/properties">
+                    <Button className="flex items-center gap-2" color="blue">
+                      <HomeIcon className="h-5 w-5" />
+                      Explore Properties
+                    </Button>
+                  </Link>
+                  </div>
+                </CardBody>
+              </Card>
             </div>
           )}
         </div>
@@ -298,12 +325,12 @@ const ClientDashboard = () => {
       {activeTab === "chat" && (
         <div>
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            <Typography variant="h4" color="blue-gray" className="mb-2">
               Chat Support
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300">
+            </Typography>
+            <Typography variant="paragraph" color="blue-gray" className="opacity-70">
               Get instant help from our real estate experts
-            </p>
+            </Typography>
           </div>
           <ChatInterface />
         </div>

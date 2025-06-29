@@ -102,7 +102,7 @@ const AdminDashboard = () => {
     try {
       const { error } = await userService.setUserAdminStatus(
         userId,
-        !currentStatus,
+        !currentStatus
       );
       if (error) throw error;
 
@@ -113,7 +113,7 @@ const AdminDashboard = () => {
             return { ...user, is_admin: !currentStatus };
           }
           return user;
-        }),
+        })
       );
     } catch (err) {
       console.error("Error updating user admin status:", err);
@@ -141,7 +141,7 @@ const AdminDashboard = () => {
         <CardHeader floated={false} shadow={false} className="rounded-none">
           <div className="mb-4 flex items-center justify-between gap-8">
             <div>
-              <Typography variant="h4" color="blue-gray">
+              <Typography className="" variant="h4" color="blue-gray">
                 Admin Dashboard
               </Typography>
               <Typography color="gray" className="mt-1 font-normal">
@@ -157,9 +157,9 @@ const AdminDashboard = () => {
         </CardHeader>
         <CardBody className="px-0">
           <Tabs value={activeTab}>
-            <TabsHeader className="bg-transparent">
-              <Tab 
-                value="properties" 
+            <TabsHeader className="bg-transparent xx:overflow-x-scroll xs:overflow-hidden">
+              <Tab
+                value="properties"
                 onClick={() => setActiveTab("properties")}
                 className="text-sm font-medium"
               >
@@ -168,8 +168,8 @@ const AdminDashboard = () => {
                   Properties
                 </div>
               </Tab>
-              <Tab 
-                value="users" 
+              <Tab
+                value="users"
                 onClick={() => setActiveTab("users")}
                 className="text-sm font-medium"
               >
@@ -178,8 +178,8 @@ const AdminDashboard = () => {
                   Users
                 </div>
               </Tab>
-              <Tab 
-                value="chat" 
+              <Tab
+                value="chat"
                 onClick={() => setActiveTab("chat")}
                 className="text-sm font-medium"
               >
@@ -190,15 +190,14 @@ const AdminDashboard = () => {
               </Tab>
             </TabsHeader>
             <TabsBody>
-
               <TabPanel value="properties" className="p-0">
                 <div className="px-4">
                   <div className="flex justify-between items-center mb-6">
                     <Typography variant="h5" color="blue-gray">
                       Property Management
                     </Typography>
-                    <Button 
-                      onClick={() => navigate("/admin/properties/new")} 
+                    <Button
+                      onClick={() => navigate("/admin/properties/new")}
                       className="flex items-center gap-2"
                       size="sm"
                     >
@@ -209,7 +208,9 @@ const AdminDashboard = () => {
                   {loading ? (
                     <div className="text-center py-8">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                      <Typography className="mt-2">Loading properties...</Typography>
+                      <Typography className="mt-2">
+                        Loading properties...
+                      </Typography>
                     </div>
                   ) : properties.length === 0 ? (
                     <div className="text-center py-8">
@@ -220,8 +221,18 @@ const AdminDashboard = () => {
                       <table className="w-full min-w-max table-auto text-left">
                         <thead>
                           <tr>
-                            {["Title", "Location", "Price", "Type", "Sale Type", "Actions"].map((head) => (
-                              <th key={head} className="border-b border-blue-gray-100 bg-blue-gray-50/50 p-4">
+                            {[
+                              "Title",
+                              "Location",
+                              "Price",
+                              "Type",
+                              "Sale Type",
+                              "Actions",
+                            ].map((head) => (
+                              <th
+                                key={head}
+                                className="border-b border-blue-gray-100 bg-blue-gray-50/50 p-4"
+                              >
                                 <Typography
                                   variant="small"
                                   color="blue-gray"
@@ -235,19 +246,34 @@ const AdminDashboard = () => {
                         </thead>
                         <tbody>
                           {properties.map((property, index) => (
-                            <tr key={property.id} className="even:bg-blue-gray-50/50">
+                            <tr
+                              key={property.id}
+                              className="even:bg-blue-gray-50/50"
+                            >
                               <td className="p-4">
-                                <Typography variant="small" color="blue-gray" className="font-normal">
+                                <Typography
+                                  variant="small"
+                                  color="blue-gray"
+                                  className="font-normal"
+                                >
                                   {property.title}
                                 </Typography>
                               </td>
                               <td className="p-4">
-                                <Typography variant="small" color="blue-gray" className="font-normal">
+                                <Typography
+                                  variant="small"
+                                  color="blue-gray"
+                                  className="font-normal"
+                                >
                                   {property.location}
                                 </Typography>
                               </td>
                               <td className="p-4">
-                                <Typography variant="small" color="blue-gray" className="font-normal">
+                                <Typography
+                                  variant="small"
+                                  color="blue-gray"
+                                  className="font-normal"
+                                >
                                   ${property.price.toLocaleString()}
                                 </Typography>
                               </td>
@@ -273,7 +299,11 @@ const AdminDashboard = () => {
                                     variant="text"
                                     color="blue"
                                     size="sm"
-                                    onClick={() => navigate(`/admin/properties/edit/${property.id}`)}
+                                    onClick={() =>
+                                      navigate(
+                                        `/admin/properties/edit/${property.id}`
+                                      )
+                                    }
                                   >
                                     <PencilSquareIcon className="h-4 w-4" />
                                   </IconButton>
@@ -281,7 +311,9 @@ const AdminDashboard = () => {
                                     variant="text"
                                     color="red"
                                     size="sm"
-                                    onClick={() => handleDeleteProperty(property.id)}
+                                    onClick={() =>
+                                      handleDeleteProperty(property.id)
+                                    }
                                   >
                                     <TrashIcon className="h-4 w-4" />
                                   </IconButton>
@@ -289,7 +321,9 @@ const AdminDashboard = () => {
                                     variant="text"
                                     color="green"
                                     size="sm"
-                                    onClick={() => navigate(`/properties/${property.id}`)}
+                                    onClick={() =>
+                                      navigate(`/properties/${property.id}`)
+                                    }
                                   >
                                     <HomeIcon className="h-4 w-4" />
                                   </IconButton>
@@ -326,8 +360,16 @@ const AdminDashboard = () => {
                       <table className="w-full min-w-max table-auto text-left">
                         <thead>
                           <tr>
-                            {["Email", "Admin Status", "Created At", "Actions"].map((head) => (
-                              <th key={head} className="border-b border-blue-gray-100 bg-blue-gray-50/50 p-4">
+                            {[
+                              "Email",
+                              "Admin Status",
+                              "Created At",
+                              "Actions",
+                            ].map((head) => (
+                              <th
+                                key={head}
+                                className="border-b border-blue-gray-100 bg-blue-gray-50/50 p-4"
+                              >
                                 <Typography
                                   variant="small"
                                   color="blue-gray"
@@ -341,9 +383,16 @@ const AdminDashboard = () => {
                         </thead>
                         <tbody>
                           {users.map((user, index) => (
-                            <tr key={user.id} className="even:bg-blue-gray-50/50">
+                            <tr
+                              key={user.id}
+                              className="even:bg-blue-gray-50/50"
+                            >
                               <td className="p-4">
-                                <Typography variant="small" color="blue-gray" className="font-normal">
+                                <Typography
+                                  variant="small"
+                                  color="blue-gray"
+                                  className="font-normal"
+                                >
                                   {user.email}
                                 </Typography>
                               </td>
@@ -356,8 +405,14 @@ const AdminDashboard = () => {
                                 />
                               </td>
                               <td className="p-4">
-                                <Typography variant="small" color="blue-gray" className="font-normal">
-                                  {new Date(user.created_at).toLocaleDateString()}
+                                <Typography
+                                  variant="small"
+                                  color="blue-gray"
+                                  className="font-normal"
+                                >
+                                  {new Date(
+                                    user.created_at
+                                  ).toLocaleDateString()}
                                 </Typography>
                               </td>
                               <td className="p-4">
@@ -365,9 +420,16 @@ const AdminDashboard = () => {
                                   size="sm"
                                   color={user.is_admin ? "orange" : "blue"}
                                   variant="filled"
-                                  onClick={() => handleToggleAdminStatus(user.id, user.is_admin)}
+                                  onClick={() =>
+                                    handleToggleAdminStatus(
+                                      user.id,
+                                      user.is_admin
+                                    )
+                                  }
                                 >
-                                  {user.is_admin ? "Remove Admin" : "Make Admin"}
+                                  {user.is_admin
+                                    ? "Remove Admin"
+                                    : "Make Admin"}
                                 </Button>
                               </td>
                             </tr>
@@ -392,10 +454,10 @@ const AdminDashboard = () => {
                   <AdminChatInterface />
                 </div>
               </TabPanel>
-              </TabsBody>
+            </TabsBody>
           </Tabs>
-          </CardBody>
-          </Card>
+        </CardBody>
+      </Card>
     </div>
   );
 };

@@ -58,6 +58,7 @@ export default {
           xl: '5rem',
         },
         screens: {
+          xx:'320px',
           xs: '400px',
           ss: '600px',
           sm: '800px',
@@ -68,6 +69,7 @@ export default {
       },
     },
     screens: {
+       xx:'320px',
       xs: "400px",
       ss: "600px",
       sm: "800px",

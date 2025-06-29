@@ -3,6 +3,17 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../../contexts/AuthContext";
+import {
+  Navbar as MTNavbar,
+  Typography,
+  Button,
+  IconButton,
+  Collapse,
+  Menu,
+  MenuHandler,
+  MenuList,
+  MenuItem,
+} from "@material-tailwind/react";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -51,28 +62,34 @@ const Navbar = () => {
   };
 
   return (
-    <nav
+    <MTNavbar
       className={`fixed top-0 left-0 w-full z-40 transition-all duration-300 ${
         scrolled
           ? "bg-white/90 dark:bg-brown-dark/90 backdrop-blur-md shadow-md py-2"
           : "bg-transparent py-4"
       }`}
+      fullWidth
     >
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <span className="text-2xl font-heading font-bold text-brown-dark dark:text-beige-light">
+            <Typography
+              variant="h4"
+              className="font-heading font-bold text-brown-dark dark:text-beige-light"
+            >
               UrbanEdge
-            </span>
+            </Typography>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
-              <Link
+              <Typography
                 key={link.name}
+                as={Link}
                 to={link.path}
+                variant="paragraph"
                 className={`font-medium transition-colors ${
                   location.pathname === link.path
                     ? "text-taupe dark:text-beige-medium"
@@ -80,90 +97,102 @@ const Navbar = () => {
                 }`}
               >
                 {link.name}
-              </Link>
+              </Typography>
             ))}
           </div>
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
-              <div className="relative">
-                <button
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center space-x-2 font-medium text-brown-dark dark:text-beige-light hover:text-taupe dark:hover:text-beige-medium transition-colors"
-                >
-                  <span>My Account</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className={`h-4 w-4 transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+              <Menu placement="bottom-end">
+                <MenuHandler>
+                  <Button 
+                    variant="text" 
+                    className="flex items-center gap-2 font-medium text-brown-dark dark:text-beige-light hover:text-taupe dark:hover:text-beige-medium transition-colors normal-case"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </button>
+                    <span>My Account</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className={`h-4 w-4 transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </Button>
+                </MenuHandler>
+                <MenuList className="bg-white dark:bg-brown-dark border-none shadow-lg">
+                  <MenuItem className="px-4 py-2 text-sm text-brown dark:text-beige-medium border-b border-beige-medium/20 dark:border-brown/20 hover:bg-transparent">
+                    {user.email}
+                  </MenuItem>
 
-                {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-brown-dark rounded-md shadow-lg py-1 z-10">
-                    <div className="px-4 py-2 text-sm text-brown dark:text-beige-medium border-b border-beige-medium/20 dark:border-brown/20">
-                      {user.email}
-                    </div>
-
-                    {isAdmin && (
-                      <Link
+                  {isAdmin && (
+                    <MenuItem>
+                      <Typography
+                        as={Link}
                         to="/admin/dashboard"
-                        className="block px-4 py-2 text-sm text-brown dark:text-beige-medium hover:bg-beige-light/20 dark:hover:bg-brown/20"
-                        onClick={() => setUserMenuOpen(false)}
+                        variant="small"
+                        className="font-medium text-brown dark:text-beige-medium"
                       >
                         Admin Dashboard
-                      </Link>
-                    )}
+                      </Typography>
+                    </MenuItem>
+                  )}
 
-                    <Link
+                  <MenuItem>
+                    <Typography
+                      as={Link}
                       to="/client/dashboard"
-                      className="block px-4 py-2 text-sm text-brown dark:text-beige-medium hover:bg-beige-light/20 dark:hover:bg-brown/20"
-                      onClick={() => setUserMenuOpen(false)}
+                      variant="small"
+                      className="font-medium text-brown dark:text-beige-medium"
                     >
                       Dashboard
-                    </Link>
+                    </Typography>
+                  </MenuItem>
 
-                    <button
-                      onClick={() => {
-                        handleSignOut();
-                        setUserMenuOpen(false);
-                      }}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-beige-light/20 dark:hover:bg-brown/20"
+                  <MenuItem onClick={handleSignOut}>
+                    <Typography
+                      variant="small"
+                      className="font-medium text-red-600"
                     >
                       Sign Out
-                    </button>
-                  </div>
-                )}
-              </div>
+                    </Typography>
+                  </MenuItem>
+                </MenuList>
+              </Menu>
             ) : (
               <>
-                <Link
+                <Button
+                  variant="text"
+                  as={Link}
                   to="/login"
-                  className="font-medium text-brown-dark dark:text-beige-light hover:text-taupe dark:hover:text-beige-medium transition-colors"
+                  className="font-medium text-brown-dark dark:text-beige-light hover:text-taupe dark:hover:text-beige-medium transition-colors normal-case"
                 >
                   Login
-                </Link>
-                <Link to="/register" className="btn-primary">
+                </Button>
+                <Button
+                  variant="filled"
+                  as={Link}
+                  to="/register"
+                  className="bg-taupe hover:bg-taupe/90 normal-case"
+                >
                   Register
-                </Link>
+                </Button>
               </>
             )}
        
           </div>
 
           {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-brown-dark dark:text-beige-light"
+          <IconButton
+            variant="text"
+            className="md:hidden text-brown-dark dark:text-beige-light ml-auto"
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? "Close menu" : "Open menu"}
           >
@@ -172,84 +201,93 @@ const Navbar = () => {
             ) : (
               <Bars3Icon className="h-6 w-6" />
             )}
-          </button>
+          </IconButton>
         </div>
       </div>
 
       {/* Mobile Menu */}
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-          className="md:hidden bg-white dark:bg-brown-dark shadow-lg"
-        >
-          <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.path}
-                className={`py-2 font-medium ${
-                  location.pathname === link.path
-                    ? "text-taupe dark:text-beige-medium"
-                    : "text-brown-dark dark:text-beige-light"
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
-            <div className="flex flex-col space-y-3 pt-4 border-t border-beige-medium dark:border-brown">
-              {user ? (
-                <>
-                  <div className="py-2 text-sm text-brown dark:text-beige-medium">
-                    {user.email}
-                  </div>
+      <Collapse open={isOpen} className="md:hidden bg-white dark:bg-brown-dark shadow-lg">
+        <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
+          {navLinks.map((link) => (
+            <Typography
+              key={link.name}
+              as={Link}
+              to={link.path}
+              variant="paragraph"
+              className={`py-2 font-medium ${
+                location.pathname === link.path
+                  ? "text-taupe dark:text-beige-medium"
+                  : "text-brown-dark dark:text-beige-light"
+              }`}
+            >
+              {link.name}
+            </Typography>
+          ))}
+          <div className="flex flex-col space-y-3 pt-4 border-t border-beige-medium dark:border-brown">
+            {user ? (
+              <>
+                <Typography 
+                  variant="small"
+                  className="py-2 text-brown dark:text-beige-medium"
+                >
+                  {user.email}
+                </Typography>
 
-                  {isAdmin && (
-                    <Link
-                      to="/admin/dashboard"
-                      className="py-2 font-medium text-brown-dark dark:text-beige-light"
-                    >
-                      Admin Dashboard
-                    </Link>
-                  )}
-
-                  <Link
-                    to="/client/dashboard"
+                {isAdmin && (
+                  <Typography
+                    as={Link}
+                    to="/admin/dashboard"
+                    variant="paragraph"
                     className="py-2 font-medium text-brown-dark dark:text-beige-light"
                   >
-                   Dashboard
-                  </Link>
+                    Admin Dashboard
+                  </Typography>
+                )}
 
-                  <button
-                    onClick={handleSignOut}
-                    className="py-2 text-left font-medium text-red-600 dark:text-red-400"
-                  >
-                    Sign Out
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/login"
-                    className="py-2 font-medium text-brown-dark dark:text-beige-light"
-                  >
-                    Login
-                  </Link>
-                  <Link to="/register" className="btn-primary text-center">
-                    Register
-                  </Link>
-                </>
-              )}
-              <div className="flex items-center justify-between mt-4 pt-4 border-t border-beige-medium dark:border-brown">
-              
-              </div>
+                <Typography
+                  as={Link}
+                  to="/client/dashboard"
+                  variant="paragraph"
+                  className="py-2 font-medium text-brown-dark dark:text-beige-light"
+                >
+                 Dashboard
+                </Typography>
+
+                <Button
+                  variant="text"
+                  onClick={handleSignOut}
+                  className="py-2 justify-start font-medium text-red-600 dark:text-red-400 normal-case"
+                >
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="text"
+                  as={Link}
+                  to="/login"
+                  className="py-2 justify-start font-medium text-brown-dark dark:text-beige-light normal-case"
+                >
+                  Login
+                </Button>
+                <Button
+                  variant="filled"
+                  as={Link}
+                  to="/register"
+                  className="bg-taupe hover:bg-taupe/90 normal-case text-center"
+                >
+                  Register
+                </Button>
+              </>
+            )}
+            <div className="flex items-center justify-between mt-4 pt-4 border-t border-beige-medium dark:border-brown">
+            
             </div>
           </div>
-        </motion.div>
-      )}
-    </nav>
+        </div>
+      </Collapse>
+    </MTNavbar>
   );
 };
 
