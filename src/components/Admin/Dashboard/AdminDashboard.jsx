@@ -12,7 +12,9 @@ import {
   TrashIcon,
   PencilSquareIcon,
   ArrowDownTrayIcon,
+  DocumentTextIcon,
 } from "@heroicons/react/24/outline";
+
 import {
   Card,
   CardBody,
@@ -162,8 +164,8 @@ const AdminDashboard = () => {
           property.bedrooms || '',
           property.bathrooms || '',
           property.square_feet || '',
-          `"${property.property_type?.name?.replace(/"/g, '""') || ''}"`,
-          `"${property.sale_type?.name?.replace(/"/g, '""') || ''}"`,
+          `"${property.property_type?.replace(/"/g, '""') || ''}"`,
+          `"${property.sale_type?.replace(/"/g, '""') || ''}"`,
           `"${property.description?.replace(/"/g, '""') || ''}"`,
           property.created_at ? new Date(property.created_at).toLocaleString() : '',
           property.updated_at ? new Date(property.updated_at).toLocaleString() : ''
@@ -188,6 +190,44 @@ const AdminDashboard = () => {
       setLoading(false);
     } catch (err) {
       console.error("Error exporting properties to CSV:", err);
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  // Handle TXT export of property data in JSON format
+  const handleExportTXT = async () => {
+    try {
+      // Show loading state or notification if needed
+      setLoading(true);
+      
+      // Fetch all properties if not already loaded
+      let propertiesToExport = properties;
+      if (!propertiesToExport || propertiesToExport.length === 0) {
+        const { data, error } = await propertyService.getProperties();
+        if (error) throw error;
+        propertiesToExport = data || [];
+      }
+      
+      // Convert properties to a plain text string (JSON format)
+      const textContent = JSON.stringify(propertiesToExport, null, 2);
+      
+      // Create a Blob with the plain text data
+      const blob = new Blob([textContent], { type: "text/plain;charset=utf-8;" });
+      
+      // Create a download link and trigger the download
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `urbanedge-properties-json-${new Date().toISOString().split('T')[0]}.txt`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up
+      setLoading(false);
+    } catch (err) {
+      console.error("Error exporting properties to DOCX:", err);
       setError(err.message);
       setLoading(false);
     }
@@ -290,6 +330,17 @@ const AdminDashboard = () => {
                         </span>
                       </Button>
                       <Button
+                        onClick={handleExportTXT}
+                        className="flex items-center gap-2"
+                        size="sm"
+                        color="purple"
+                      >
+                        <DocumentTextIcon className="h-4 w-4" />{" "}
+                        <span className="text-base ss:inline-block hidden">
+                          Export TXT
+                        </span>
+                      </Button>
+                      <Button
                         onClick={() => navigate("/admin/properties/new")}
                         className="flex items-center gap-2"
                         size="sm"
@@ -376,7 +427,7 @@ const AdminDashboard = () => {
                               </td>
                               <td className="p-4">
                                 <Chip
-                                  value={property.property_type?.name || "N/A"}
+                                  value={property.property_type || "N/A"}
                                   size="sm"
                                   variant="ghost"
                                   color="blue-gray"
@@ -384,7 +435,7 @@ const AdminDashboard = () => {
                               </td>
                               <td className="p-4">
                                 <Chip
-                                  value={property.sale_type?.name || "N/A"}
+                                  value={property.sale_type || "N/A"}
                                   size="sm"
                                   variant="ghost"
                                   color="blue"
