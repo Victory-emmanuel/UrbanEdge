@@ -92,12 +92,15 @@ const Header = () => {
               </div>
             ) : (
               <>
-                <Link to="/login" className="text-gray-700 hover:text-blue-600">
-                  Sign In
+                <Link
+                  to="/login"
+                  className="inline-flex items-center px-4 py-2 font-medium text-brown-dark dark:text-beige-light hover:text-taupe dark:hover:text-beige-medium transition-colors"
+                >
+                  Login
                 </Link>
                 <Link
                   to="/register"
-                  className="text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md"
+                  className="inline-flex items-center px-4 py-2 bg-taupe hover:bg-taupe/90 text-white rounded-md transition-colors"
                 >
                   Register
                 </Link>
@@ -200,15 +203,15 @@ const Header = () => {
                 <div className="flex flex-col space-y-2 pt-2 border-t">
                   <Link
                     to="/login"
-                    className="text-gray-700 hover:text-blue-600"
                     onClick={() => setMobileMenuOpen(false)}
+                    className="inline-flex items-center px-4 py-2 font-medium text-brown-dark dark:text-beige-light hover:text-taupe dark:hover:text-beige-medium transition-colors"
                   >
-                    Sign In
+                    Login
                   </Link>
                   <Link
                     to="/register"
-                    className="text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md inline-block"
                     onClick={() => setMobileMenuOpen(false)}
+                    className="inline-flex items-center px-4 py-2 bg-taupe hover:bg-taupe/90 text-white rounded-md transition-colors"
                   >
                     Register
                   </Link>

@@ -4,6 +4,10 @@ import {
   PaperAirplaneIcon,
   XMarkIcon,
   PlusIcon,
+  UserIcon,
+  CheckIcon,
+  ClockIcon,
+  Bars3Icon
 } from "@heroicons/react/24/outline";
 import { chatService } from "../../../lib/chatService";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -18,7 +22,10 @@ import {
   Spinner,
   Chip,
   Badge,
+  Drawer,
+  IconButton
 } from "@material-tailwind/react";
+import { PlusCircleIcon } from "lucide-react";
 
 /**
  * Chat Interface component for client-admin communication
@@ -33,8 +40,10 @@ const ChatInterface = () => {
   const [sending, setSending] = useState(false);
   const [showNewConversation, setShowNewConversation] = useState(false);
   const [newConversationSubject, setNewConversationSubject] = useState("");
+  const [openDrawer, setOpenDrawer] = useState(false);
   const messagesEndRef = useRef(null);
   const messageSubscription = useRef(null);
+  const conversationSubscription = useRef(null);
 
   useEffect(() => {
     if (user) {
@@ -139,15 +148,32 @@ const ChatInterface = () => {
 
     try {
       setSending(true);
+      // Create a temporary message object to display immediately
+      const tempMessage = {
+        id: `temp-${Date.now()}`,
+        conversation_id: activeConversation.id,
+        sender_id: user.id,
+        sender_is_admin: false,
+        content: newMessage.trim(),
+        created_at: new Date().toISOString(),
+        read: true
+      };
+      
+      // Add the temporary message to the UI
+      setMessages(prev => [...prev, tempMessage]);
+      
+      // Clear the input field
+      setNewMessage("");
+      
+      // Send the message to the server
       const { data, error } = await chatService.sendMessage(
         activeConversation.id,
-        newMessage.trim()
+        tempMessage.content
       );
 
       if (error) throw error;
-
-      setNewMessage("");
-      // Message will be added via subscription
+      
+      // The actual message will be added via subscription and replace the temp one
     } catch (error) {
       console.error("Error sending message:", error);
     } finally {
@@ -178,6 +204,22 @@ const ChatInterface = () => {
   const formatMessageTime = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
+
+  const formatConversationTime = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+    
+    if (diffInDays === 0) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else if (diffInDays === 1) {
+      return 'Yesterday';
+    } else if (diffInDays < 7) {
+      return date.toLocaleDateString([], { weekday: 'short' });
+    } else {
+      return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    }
   };
 
   return (
@@ -213,9 +255,119 @@ const ChatInterface = () => {
         </div>
       ) : (
         <Card className="h-[600px] overflow-hidden shadow-lg">
+          {/* Mobile Header with Menu Button */}
+          <div className="md:hidden p-4 border-b border-blue-gray-100 flex justify-between items-center">
+            <Typography variant="h6" color="blue-gray">
+              My Conversations
+            </Typography>
+            <IconButton variant="text" onClick={() => setOpenDrawer(true)}>
+              <Bars3Icon className="h-6 w-6" />
+            </IconButton>
+          </div>
+
+          {/* Mobile Drawer for Conversations */}
+          <Drawer open={openDrawer} onClose={() => setOpenDrawer(false)} className="p-4">
+            <div className="flex items-center justify-between mb-6">
+              <Typography variant="h5" color="blue-gray">
+                My Conversations
+              </Typography>
+              <IconButton variant="text" onClick={() => setOpenDrawer(false)}>
+                <XMarkIcon className="h-5 w-5" />
+              </IconButton>
+            </div>
+            
+            <Button 
+              size="sm" 
+              color="blue" 
+              onClick={() => {
+                setShowNewConversation(true);
+                setOpenDrawer(false);
+              }}
+              className="mb-4 w-full flex items-center justify-center gap-2"
+            >
+              <PlusCircleIcon className="h-4 w-4" />
+              New Conversation
+            </Button>
+
+            <div className="overflow-y-auto">
+              {conversations.length === 0 ? (
+                <div className="p-4 text-center">
+                  <ChatBubbleLeftRightIcon className="h-8 w-8 mx-auto mb-2 text-blue-gray-300" />
+                  <Typography variant="small" color="blue-gray" className="font-normal">
+                    No conversations yet
+                  </Typography>
+                </div>
+              ) : (
+                conversations.map((conversation) => (
+                  <div
+                    key={conversation.id}
+                    onClick={() => {
+                      setActiveConversation(conversation);
+                      setOpenDrawer(false);
+                    }}
+                    className={`p-3 border-b border-blue-gray-50 cursor-pointer hover:bg-blue-gray-50/30 transition-colors ${
+                      activeConversation?.id === conversation.id ? 'bg-blue-50' : ''
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <Typography 
+                          variant="small" 
+                          color="blue-gray" 
+                          className="font-medium truncate"
+                        >
+                          {conversation.subject || 'General Inquiry'}
+                        </Typography>
+                        <div className="flex items-center mt-1">
+                          {conversation.admin_id ? (
+                            <Chip
+                              size="sm"
+                              variant="ghost"
+                              value={
+                                <div className="flex items-center gap-1">
+                                  <CheckIcon className="h-3 w-3" />
+                                  <span>Assigned</span>
+                                </div>
+                              }
+                              color="green"
+                              className="text-xs py-0.5 px-1"
+                            />
+                          ) : (
+                            <Chip
+                              size="sm"
+                              variant="ghost"
+                              value={
+                                <div className="flex items-center gap-1">
+                                  <ClockIcon className="h-3 w-3" />
+                                  <span>Pending</span>
+                                </div>
+                              }
+                              color="amber"
+                              className="text-xs py-0.5 px-1"
+                            />
+                          )}
+                          <Typography 
+                            variant="small" 
+                            className="text-xs text-blue-gray-400 ml-2"
+                          >
+                            {formatConversationTime(conversation.updated_at)}
+                          </Typography>
+                        </div>
+                      </div>
+                      {conversation.unread_count > 0 && (
+                        <Badge content={conversation.unread_count} color="blue">
+                          <div className="w-5 h-5"></div>
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </Drawer>
           <div className="flex h-full rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700">
-            {/* Conversations List */}
-            <div className="w-1/3 border-r border-gray-200 dark:border-gray-700 overflow-y-auto bg-white dark:bg-brown-dark/30">
+            {/* Conversations List - Hidden on Mobile */}
+            <div className="hidden md:block w-1/3 border-r border-gray-200 dark:border-gray-700 overflow-y-auto bg-white dark:bg-brown-dark/30">
               <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-brown-dark/50">
                 <Typography
                   variant="h6"
@@ -298,7 +450,7 @@ const ChatInterface = () => {
             </div>
 
             {/* Chat Area */}
-            <div className="w-2/3 flex flex-col bg-gray-50 dark:bg-brown-dark/20">
+            <div className="w-full md:w-2/3 flex flex-col bg-gray-50 dark:bg-brown-dark/20">
               {showNewConversation ? (
                 <div className="flex flex-col h-full p-6">
                   <div className="mb-6">
@@ -448,16 +600,23 @@ const ChatInterface = () => {
                     variant="paragraph"
                     className="text-gray-600 dark:text-gray-400 max-w-md"
                   >
-                    Choose an existing conversation from the list or create a
-                    new one to start chatting with our support team.
+                    {window.innerWidth < 768 ? 
+                      "Open the menu to view your conversations or start a new one." :
+                      "Choose an existing conversation from the list or create a new one to start chatting with our support team."}
                   </Typography>
                   <Button
                     variant="filled"
                     className="mt-6 bg-taupe hover:bg-taupe/90 shadow-md normal-case"
-                    onClick={() => setShowNewConversation(true)}
+                    onClick={() => {
+                      if (window.innerWidth < 768) {
+                        setOpenDrawer(true);
+                      } else {
+                        setShowNewConversation(true);
+                      }
+                    }}
                   >
                     <PlusCircleIcon className="h-5 w-5 mr-2" />
-                    Start New Conversation
+                    {window.innerWidth < 768 ? "Open Menu" : "Start New Conversation"}
                   </Button>
                 </div>
               )}

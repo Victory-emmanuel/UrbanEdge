@@ -220,5 +220,24 @@ export const chatService = {
       console.error('Error getting unread message count:', error);
       return { data: 0, error };
     }
+  },
+
+  /**
+   * Delete a conversation (admin only)
+   * @param {string} conversationId - The conversation ID
+   * @returns {Promise<{data: Object, error: Object}>}
+   */
+  async deleteConversation(conversationId) {
+    try {
+      const { data, error } = await supabase.rpc('delete_conversation', {
+        p_conversation_id: conversationId
+      });
+
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      return { data: null, error };
+    }
   }
 };

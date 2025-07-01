@@ -106,14 +106,16 @@ const Navbar = () => {
             {user ? (
               <Menu placement="bottom-end">
                 <MenuHandler>
-                  <Button 
-                    variant="text" 
+                  <Button
+                    variant="text"
                     className="flex items-center gap-2 font-medium text-brown-dark dark:text-beige-light hover:text-taupe dark:hover:text-beige-medium transition-colors normal-case"
                   >
                     <span>My Account</span>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className={`h-4 w-4 transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
+                      className={`h-4 w-4 transition-transform ${
+                        userMenuOpen ? "rotate-180" : ""
+                      }`}
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -168,25 +170,20 @@ const Navbar = () => {
               </Menu>
             ) : (
               <>
-                <Button
-                  variant="text"
-                  as={Link}
+                <Link
                   to="/login"
-                  className="font-medium text-brown-dark dark:text-beige-light hover:text-taupe dark:hover:text-beige-medium transition-colors normal-case"
+                  className="inline-flex items-center px-4 py-2 font-medium text-brown-dark dark:text-beige-light hover:text-taupe dark:hover:text-beige-medium transition-colors"
                 >
                   Login
-                </Button>
-                <Button
-                  variant="filled"
-                  as={Link}
+                </Link>
+                <Link
                   to="/register"
-                  className="bg-taupe hover:bg-taupe/90 normal-case"
+                  className="inline-flex items-center px-4 py-2 bg-taupe hover:bg-taupe/90 text-white rounded-md transition-colors"
                 >
                   Register
-                </Button>
+                </Link>
               </>
             )}
-       
           </div>
 
           {/* Mobile Menu Button */}
@@ -206,7 +203,10 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Menu */}
-      <Collapse open={isOpen} className="md:hidden bg-white dark:bg-brown-dark shadow-lg">
+      <Collapse
+        open={isOpen}
+        className="md:hidden bg-white dark:bg-brown-dark shadow-lg"
+      >
         <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
           {navLinks.map((link) => (
             <Typography
@@ -226,7 +226,7 @@ const Navbar = () => {
           <div className="flex flex-col space-y-3 pt-4 border-t border-beige-medium dark:border-brown">
             {user ? (
               <>
-                <Typography 
+                <Typography
                   variant="small"
                   className="py-2 text-brown dark:text-beige-medium"
                 >
@@ -250,7 +250,7 @@ const Navbar = () => {
                   variant="paragraph"
                   className="py-2 font-medium text-brown-dark dark:text-beige-light"
                 >
-                 Dashboard
+                  Dashboard
                 </Typography>
 
                 <Button
@@ -263,28 +263,21 @@ const Navbar = () => {
               </>
             ) : (
               <>
-              <Link to={"/login"}>
-                <Button
-                  variant="text"
-                 
-                  className="py-2 justify-start font-medium text-brown-dark dark:text-beige-light normal-case"
+                <Link
+                  to="/login"
+                  className="inline-flex items-center px-4 py-2 font-medium text-brown-dark dark:text-beige-light hover:text-taupe dark:hover:text-beige-medium transition-colors"
                 >
                   Login
-                </Button>
                 </Link>
-                <Button
-                  variant="filled"
-                  as={Link}
+                <Link
                   to="/register"
-                  className="bg-taupe hover:bg-taupe/90 normal-case text-center"
+                  className="inline-flex items-center px-4 py-2 bg-taupe hover:bg-taupe/90 text-white rounded-md transition-colors"
                 >
                   Register
-                </Button>
+                </Link>
               </>
             )}
-            <div className="flex items-center justify-between mt-4 pt-4 border-t border-beige-medium dark:border-brown">
-            
-            </div>
+            <div className="flex items-center justify-between mt-4 pt-4 border-t border-beige-medium dark:border-brown"></div>
           </div>
         </div>
       </Collapse>

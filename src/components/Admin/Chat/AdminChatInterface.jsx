@@ -4,7 +4,10 @@ import {
   PaperAirplaneIcon,
   UserIcon,
   CheckIcon,
-  ClockIcon
+  ClockIcon,
+  Bars3Icon,
+  XMarkIcon,
+  TrashIcon
 } from "@heroicons/react/24/outline";
 import { chatService } from "../../../lib/chatService";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -18,7 +21,13 @@ import {
   Input,
   Chip,
   Spinner,
-  Badge
+  Badge,
+  Drawer,
+  IconButton,
+  Dialog,
+  DialogHeader,
+  DialogBody,
+  DialogFooter
 } from "@material-tailwind/react";
 
 /**
@@ -32,6 +41,9 @@ const AdminChatInterface = () => {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [openDrawer, setOpenDrawer] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState(false);
+  const [conversationToDelete, setConversationToDelete] = useState(null);
   const messagesEndRef = useRef(null);
   const messageSubscription = useRef(null);
   const conversationSubscription = useRef(null);
@@ -147,19 +159,64 @@ const AdminChatInterface = () => {
 
     try {
       setSending(true);
+      // Create a temporary message object to display immediately
+      const tempMessage = {
+        id: `temp-${Date.now()}`,
+        conversation_id: activeConversation.id,
+        sender_id: user.id,
+        sender_is_admin: true,
+        content: newMessage.trim(),
+        created_at: new Date().toISOString(),
+        read: true
+      };
+      
+      // Add the temporary message to the UI
+      setMessages(prev => [...prev, tempMessage]);
+      
+      // Clear the input field
+      setNewMessage("");
+      
+      // Send the message to the server
       const { data, error } = await chatService.sendMessage(
         activeConversation.id,
-        newMessage.trim()
+        tempMessage.content
       );
 
       if (error) throw error;
       
-      setNewMessage("");
-      // Message will be added via subscription
+      // The actual message will be added via subscription and replace the temp one
     } catch (error) {
       console.error("Error sending message:", error);
     } finally {
       setSending(false);
+    }
+  };
+
+  const handleDeleteConversation = async () => {
+    if (!conversationToDelete) return;
+    
+    try {
+      const { error } = await chatService.deleteConversation(conversationToDelete);
+      
+      if (error) throw error;
+      
+      // Remove the conversation from the list
+      setConversations(prev => prev.filter(conv => conv.id !== conversationToDelete));
+      
+      // If this was the active conversation, clear it
+      if (activeConversation?.id === conversationToDelete) {
+        setActiveConversation(null);
+        setMessages([]);
+      }
+      
+      // Close the dialog
+      setDeleteDialog(false);
+      setConversationToDelete(null);
+      
+      // Close the drawer on mobile
+      setOpenDrawer(false);
+    } catch (error) {
+      console.error("Error deleting conversation:", error);
     }
   };
 
@@ -233,9 +290,154 @@ const AdminChatInterface = () => {
 
   return (
     <Card className="w-full h-[600px] overflow-hidden">
-      {/* Conversations List */}
+      {/* Mobile Header with Menu Button */}
+      <div className="md:hidden p-4 border-b border-blue-gray-100 flex justify-between items-center">
+        <Typography variant="h6" color="blue-gray">
+          Admin Chat
+        </Typography>
+        <IconButton variant="text" onClick={() => setOpenDrawer(true)}>
+          <Bars3Icon className="h-6 w-6" />
+        </IconButton>
+      </div>
+
+      {/* Mobile Drawer for Conversations */}
+      <Drawer open={openDrawer} onClose={() => setOpenDrawer(false)} className="p-4">
+        <div className="flex items-center justify-between mb-6">
+          <Typography variant="h5" color="blue-gray">
+            Conversations
+          </Typography>
+          <IconButton variant="text" onClick={() => setOpenDrawer(false)}>
+            <XMarkIcon className="h-5 w-5" />
+          </IconButton>
+        </div>
+        
+        <div className="overflow-y-auto">
+          {conversations.length === 0 ? (
+            <div className="p-4 text-center">
+              <ChatBubbleLeftRightIcon className="h-8 w-8 mx-auto mb-2 text-blue-gray-300" />
+              <Typography variant="small" color="blue-gray" className="font-normal">
+                No conversations yet
+              </Typography>
+            </div>
+          ) : (
+            conversations.map((conversation) => (
+              <div
+                key={conversation.id}
+                onClick={() => {
+                  setActiveConversation(conversation);
+                  setOpenDrawer(false);
+                }}
+                className={`p-3 border-b border-blue-gray-50 cursor-pointer hover:bg-blue-gray-50/30 transition-colors ${
+                  activeConversation?.id === conversation.id ? 'bg-blue-50' : ''
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center mb-1">
+                      <UserIcon className="h-4 w-4 text-blue-gray-400 mr-1" />
+                      <Typography 
+                        variant="small" 
+                        color="blue-gray" 
+                        className="font-medium truncate"
+                      >
+                        {conversation.client_email}
+                      </Typography>
+                    </div>
+                    <Typography 
+                      variant="small" 
+                      color="blue-gray" 
+                      className="text-xs opacity-70 truncate"
+                    >
+                      {conversation.subject || 'General Inquiry'}
+                    </Typography>
+                    <div className="flex items-center mt-1">
+                      {conversation.admin_id ? (
+                        <Chip
+                          size="sm"
+                          variant="ghost"
+                          value={
+                            <div className="flex items-center gap-1">
+                              <CheckIcon className="h-3 w-3" />
+                              <span>Assigned</span>
+                            </div>
+                          }
+                          color="green"
+                          className="text-xs py-0.5 px-1"
+                        />
+                      ) : (
+                        <Chip
+                          size="sm"
+                          variant="ghost"
+                          value={
+                            <div className="flex items-center gap-1">
+                              <ClockIcon className="h-3 w-3" />
+                              <span>Unassigned</span>
+                            </div>
+                          }
+                          color="amber"
+                          className="text-xs py-0.5 px-1"
+                        />
+                      )}
+                      <Typography 
+                        variant="small" 
+                        className="text-xs text-blue-gray-400 ml-2"
+                      >
+                        {formatConversationTime(conversation.updated_at)}
+                      </Typography>
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    {conversation.unread_count > 0 && (
+                      <Badge content={conversation.unread_count} color="blue">
+                        <div className="w-5 h-5"></div>
+                      </Badge>
+                    )}
+                    <IconButton 
+                      variant="text" 
+                      size="sm" 
+                      color="red"
+                      className="ml-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setConversationToDelete(conversation.id);
+                        setDeleteDialog(true);
+                      }}
+                    >
+                      <TrashIcon className="h-4 w-4" />
+                    </IconButton>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </Drawer>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialog} handler={() => setDeleteDialog(false)}>
+        <DialogHeader>Confirm Deletion</DialogHeader>
+        <DialogBody>
+          Are you sure you want to delete this conversation? This action cannot be undone.
+        </DialogBody>
+        <DialogFooter>
+          <Button
+            variant="text"
+            color="blue-gray"
+            onClick={() => setDeleteDialog(false)}
+            className="mr-1"
+          >
+            Cancel
+          </Button>
+          <Button variant="gradient" color="red" onClick={handleDeleteConversation}>
+            Delete
+          </Button>
+        </DialogFooter>
+      </Dialog>
+
+      {/* Main Content */}
       <div className="flex h-full">
-        <div className="w-1/3 border-r border-blue-gray-100">
+        {/* Conversations List - Hidden on Mobile */}
+        <div className="hidden md:block w-1/3 border-r border-blue-gray-100">
           <div className="p-4 border-b border-blue-gray-100">
             <Typography variant="h6" color="blue-gray">
               Client Conversations
@@ -317,11 +519,26 @@ const AdminChatInterface = () => {
                         </Typography>
                       </div>
                     </div>
-                    {conversation.unread_count > 0 && (
-                      <Badge content={conversation.unread_count} color="blue">
-                        <div className="w-5 h-5"></div>
-                      </Badge>
-                    )}
+                    <div className="flex items-center">
+                      {conversation.unread_count > 0 && (
+                        <Badge content={conversation.unread_count} color="blue">
+                          <div className="w-5 h-5"></div>
+                        </Badge>
+                      )}
+                      <IconButton 
+                        variant="text" 
+                        size="sm" 
+                        color="red"
+                        className="ml-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setConversationToDelete(conversation.id);
+                          setDeleteDialog(true);
+                        }}
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </IconButton>
+                    </div>
                   </div>
                 </div>
               ))
@@ -330,29 +547,54 @@ const AdminChatInterface = () => {
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1">
+        <div className="flex-1 md:block">
           {activeConversation ? (
             <div className="flex flex-col h-full">
               {/* Chat Header */}
               <div className="p-4 border-b border-blue-gray-100">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <Typography variant="h6" color="blue-gray">
-                      {activeConversation.subject || 'General Inquiry'}
-                    </Typography>
-                    <Typography variant="small" color="blue-gray" className="font-normal opacity-70">
-                      Client: {activeConversation.client_email}
-                    </Typography>
-                  </div>
-                  {!activeConversation.admin_id && (
-                    <Button
-                      size="sm"
-                      color="blue"
-                      onClick={() => handleAssignToSelf(activeConversation.id)}
+                  <div className="flex items-center">
+                    <IconButton 
+                      variant="text" 
+                      size="sm" 
+                      color="blue-gray"
+                      className="mr-2 md:hidden"
+                      onClick={() => setOpenDrawer(true)}
                     >
-                      Assign to Me
-                    </Button>
-                  )}
+                      <Bars3Icon className="h-5 w-5" />
+                    </IconButton>
+                    <div>
+                      <Typography variant="h6" color="blue-gray">
+                        {activeConversation.subject || 'General Inquiry'}
+                      </Typography>
+                      <Typography variant="small" color="blue-gray" className="font-normal opacity-70">
+                        Client: {activeConversation.client_email}
+                      </Typography>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {!activeConversation.admin_id && (
+                      <Button
+                        size="sm"
+                        color="blue"
+                        onClick={() => handleAssignToSelf(activeConversation.id)}
+                      >
+                        Assign to Me
+                      </Button>
+                    )}
+                    <IconButton 
+                      variant="text" 
+                      size="sm" 
+                      color="red"
+                      className="md:hidden"
+                      onClick={() => {
+                        setConversationToDelete(activeConversation.id);
+                        setDeleteDialog(true);
+                      }}
+                    >
+                      <TrashIcon className="h-4 w-4" />
+                    </IconButton>
+                  </div>
                 </div>
               </div>
 
@@ -421,7 +663,14 @@ const AdminChatInterface = () => {
               <div className="text-center">
                 <ChatBubbleLeftRightIcon className="h-12 w-12 mx-auto mb-4 text-blue-gray-300" />
                 <Typography color="blue-gray" className="font-normal">
-                  Select a conversation to start responding
+                  {conversations.length > 0 ? (
+                    <>
+                      <span className="md:hidden">Open the menu to select a conversation</span>
+                      <span className="hidden md:inline">Select a conversation to start responding</span>
+                    </>
+                  ) : (
+                    "No conversations available"
+                  )}
                 </Typography>
               </div>
             </div>
