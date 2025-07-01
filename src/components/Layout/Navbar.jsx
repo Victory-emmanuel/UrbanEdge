@@ -263,14 +263,15 @@ const Navbar = () => {
               </>
             ) : (
               <>
+              <Link to={"/login"}>
                 <Button
                   variant="text"
-                  as={Link}
-                  to="/login"
+                 
                   className="py-2 justify-start font-medium text-brown-dark dark:text-beige-light normal-case"
                 >
                   Login
                 </Button>
+                </Link>
                 <Button
                   variant="filled"
                   as={Link}

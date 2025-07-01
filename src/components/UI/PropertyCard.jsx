@@ -101,6 +101,7 @@ const PropertyCard = ({ property, onFavoriteToggle }) => {
     <div className="card group">
       {/* Image Container */}
       <div className="relative overflow-hidden h-48 xs:h-56 sm:h-64">
+        <Link to={`/properties/${property.id}`}>
         <img
           src={getImageUrl()}
           alt={property.title || "Property"}
@@ -110,7 +111,7 @@ const PropertyCard = ({ property, onFavoriteToggle }) => {
             e.target.src = "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80";
           }}
         />
-
+        </Link>
         {/* Price Badge */}
         <div className="absolute top-2 xs:top-4 left-2 xs:left-4 bg-white dark:bg-brown-dark px-2 xs:px-3 py-1 rounded-md shadow-md">
           <span className="font-heading font-bold text-sm xs:text-base text-brown-dark dark:text-beige-light">

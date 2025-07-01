@@ -52,7 +52,8 @@ export default {
         center: true,
         padding: {
           DEFAULT: '0.5rem',
-          xs: '1rem',
+          xs: '0.25rem',
+          ss: '1rem',
           sm: '2rem',
           lg: '4rem',
           xl: '5rem',
