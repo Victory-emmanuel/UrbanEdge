@@ -301,6 +301,7 @@ const AdminChatInterface = () => {
       </div>
 
       {/* Mobile Drawer for Conversations */}
+      
       <Drawer open={openDrawer} onClose={() => setOpenDrawer(false)} className="p-4">
         <div className="flex items-center justify-between mb-6">
           <Typography variant="h5" color="blue-gray">

@@ -269,7 +269,7 @@ const AdminDashboard = () => {
         </CardHeader>
         <CardBody className="px-0">
           <Tabs value={activeTab}>
-            <TabsHeader className="bg-transparent xx:overflow-x-scroll xs:overflow-hidden">
+            <TabsHeader className="bg-transparent xx:overflow-x-scroll xs:overflow-hidden mb-4">
               <Tab
                 value="properties"
                 onClick={() => setActiveTab("properties")}
@@ -308,7 +308,7 @@ const AdminDashboard = () => {
               </Tab>
             </TabsHeader>
             <TabsBody>
-              <TabPanel value="properties" className="p-0 mt-2">
+              <TabPanel value="properties" className="p-0 ">
                 <div className="px-4">
                   <div className="flex justify-between items-center mb-6">
                     <Typography
