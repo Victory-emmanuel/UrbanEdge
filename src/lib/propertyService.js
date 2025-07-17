@@ -126,7 +126,7 @@ export const propertyService = {
    * @returns {Promise<{data: Object, error: Object}>}
    */
   async createProperty(property) {
-    // Call the create_property RPC function
+    // Call the create_property RPC function with agent contact information
     const { data, error } = await supabase.rpc('create_property', {
       p_title: property.title,
       p_location: property.location,
@@ -141,7 +141,12 @@ export const propertyService = {
       p_neighborhood: property.neighborhood,
       p_feature_ids: property.features || [],
       p_latitude: property.latitude ? (isNaN(parseFloat(property.latitude)) ? null : parseFloat(property.latitude)) : null,
-      p_longitude: property.longitude ? (isNaN(parseFloat(property.longitude)) ? null : parseFloat(property.longitude)) : null
+      p_longitude: property.longitude ? (isNaN(parseFloat(property.longitude)) ? null : parseFloat(property.longitude)) : null,
+      // Agent contact information
+      p_agent_name: property.agentName || 'UrbanEdge Agent',
+      p_agent_email: property.agentEmail || 'contact@urbanedge.com',
+      p_agent_phone: property.agentPhone?.trim() || null,
+      p_agent_whatsapp_link: property.agentWhatsappLink?.trim() || null
     });
 
     if (error) return { data: null, error };
@@ -201,6 +206,12 @@ export const propertyService = {
         fieldsToUpdate.longitude = lng;
       }
     }
+
+    // Agent contact information
+    if (property.agentName) fieldsToUpdate.agent_name = property.agentName;
+    if (property.agentEmail) fieldsToUpdate.agent_email = property.agentEmail;
+    if (property.agentPhone !== undefined) fieldsToUpdate.agent_phone = property.agentPhone?.trim() || null;
+    if (property.agentWhatsappLink !== undefined) fieldsToUpdate.agent_whatsapp_link = property.agentWhatsappLink?.trim() || null;
 
     // Always update the timestamp
     fieldsToUpdate.updated_at = new Date().toISOString();

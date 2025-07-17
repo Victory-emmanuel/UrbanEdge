@@ -299,16 +299,14 @@ const PropertyDetailPage = () => {
                 transition={{ duration: 0.5 }}
               >
                 <PropertyContactForm
-                  agent={
-                    property.agent || {
-                      name: "UrbanEdge Agent",
-                      title: "Real Estate Agent",
-                      phone: "(555) 123-4567",
-                      email: "contact@urbanedge.com",
-                      photo:
-                        "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
-                    }
-                  }
+                  agent={{
+                    name: property.agent_name || property.agent?.name || "UrbanEdge Agent",
+                    title: "Real Estate Agent",
+                    phone: property.agent_phone || property.agent?.phone || "(555) 123-4567",
+                    email: property.agent_email || property.agent?.email || "contact@urbanedge.com",
+                    whatsapp_link: property.agent_whatsapp_link || property.agent?.whatsapp_link || null,
+                    photo: property.agent?.photo || "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
+                  }}
                   propertyTitle={property.title}
                 />
               </motion.div>

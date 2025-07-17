@@ -40,7 +40,12 @@ const PropertyForm = () => {
       propertyTypeId: "",
       saleTypeId: "",
       latitude: "",
-      longitude: ""
+      longitude: "",
+      // Agent contact information
+      agentName: "UrbanEdge Agent",
+      agentEmail: "contact@urbanedge.com",
+      agentPhone: "",
+      agentWhatsappLink: ""
     }
   });
 
@@ -121,7 +126,12 @@ const PropertyForm = () => {
           propertyTypeId: propertyData.property_type_id || "",
           saleTypeId: propertyData.sale_type_id || "",
           latitude: propertyData.latitude ? propertyData.latitude.toString() : "",
-          longitude: propertyData.longitude ? propertyData.longitude.toString() : ""
+          longitude: propertyData.longitude ? propertyData.longitude.toString() : "",
+          // Agent contact information
+          agentName: propertyData.agent_name || "",
+          agentEmail: propertyData.agent_email || "",
+          agentPhone: propertyData.agent_phone || "",
+          agentWhatsappLink: propertyData.agent_whatsapp_link || ""
         };
 
         console.log('Form data to reset with:', formData);
@@ -205,6 +215,11 @@ const PropertyForm = () => {
         longitude: data.longitude ? parseFloat(data.longitude) : null,
         images: images,
         features: selectedFeatures,
+        // Agent contact information
+        agentName: data.agentName?.trim() || '',
+        agentEmail: data.agentEmail?.trim() || '',
+        agentPhone: data.agentPhone?.trim() || null,
+        agentWhatsappLink: data.agentWhatsappLink?.trim() || null,
       };
 
       // Log the data being sent for debugging
@@ -1018,6 +1033,108 @@ const PropertyForm = () => {
                   No images added yet.
                 </p>
               )}
+            </div>
+          </div>
+        </div>
+
+        {/* Agent Contact Information Section */}
+        <div className="mt-8 p-6 bg-blue-50 rounded-lg border-2 border-blue-200">
+          <h2 className="text-xl font-semibold text-gray-900 border-b-2 border-blue-300 pb-2 mb-6">
+            Agent Contact Information
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Agent Name *
+              </label>
+              <input
+                type="text"
+                {...register("agentName", {
+                  required: "Agent name is required",
+                  minLength: { value: 2, message: "Agent name must be at least 2 characters" }
+                })}
+                className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-3 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
+                placeholder="Enter agent's full name"
+              />
+              {errors.agentName && (
+                <p className="mt-2 text-sm text-red-700 font-medium">
+                  {errors.agentName.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Agent Email *
+              </label>
+              <input
+                type="email"
+                {...register("agentEmail", {
+                  required: "Agent email is required",
+                  pattern: {
+                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                    message: "Please enter a valid email address (e.g., user@example.com)"
+                  }
+                })}
+                className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-3 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
+                placeholder="agent@example.com"
+              />
+              {errors.agentEmail && (
+                <p className="mt-2 text-sm text-red-700 font-medium">
+                  {errors.agentEmail.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Agent Phone (Optional)
+              </label>
+              <input
+                type="tel"
+                {...register("agentPhone", {
+                  pattern: {
+                    value: /^[\+]?[\d\s\-\(\)\.]{7,20}$/,
+                    message: "Please enter a valid phone number (7-20 digits, spaces, dashes, parentheses allowed)"
+                  }
+                })}
+                className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-3 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
+                placeholder="1234567890 or (555) 123-4567 or 555-123-4567"
+              />
+              {errors.agentPhone && (
+                <p className="mt-2 text-sm text-red-700 font-medium">
+                  {errors.agentPhone.message}
+                </p>
+              )}
+              <p className="mt-1 text-xs text-gray-600">
+                Optional. Enter phone number in any common format (e.g., 1234567890, (555) 123-4567, 555-123-4567)
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                WhatsApp Link (Optional)
+              </label>
+              <input
+                type="url"
+                {...register("agentWhatsappLink", {
+                  pattern: {
+                    value: /^https?:\/\/.+/,
+                    message: "Please enter a valid URL starting with http:// or https://"
+                  }
+                })}
+                className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-3 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
+                placeholder="https://wa.me/1234567890"
+              />
+              {errors.agentWhatsappLink && (
+                <p className="mt-2 text-sm text-red-700 font-medium">
+                  {errors.agentWhatsappLink.message}
+                </p>
+              )}
+              <p className="mt-1 text-xs text-gray-600">
+                Optional WhatsApp direct message link (e.g., https://wa.me/1234567890)
+              </p>
             </div>
           </div>
         </div>
