@@ -5,7 +5,6 @@ import "./index.css";
 import { AuthProvider } from "./contexts/AuthContext";
 import MaterialTailwindProvider from "./components/UI/MaterialTailwindProvider";
 
-
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <MaterialTailwindProvider>
@@ -13,5 +12,5 @@ createRoot(document.getElementById("root")).render(
         <App />
       </AuthProvider>
     </MaterialTailwindProvider>
-  </StrictMode>,
+  </StrictMode>
 );

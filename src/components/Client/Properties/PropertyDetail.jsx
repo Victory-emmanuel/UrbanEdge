@@ -3,6 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { propertyService } from "../../../lib/propertyService";
 import { formatPropertyPrice } from "../../../utils/currencyUtils";
 import { handleImageError, getFallbackImage } from "../../../utils/imageUtils";
+import {
+  handleCommunicationAction,
+  getAgentContactInfo,
+} from "../../../utils/communicationUtils";
 
 /**
  * Property Detail component for displaying detailed information about a property
@@ -15,6 +19,7 @@ const PropertyDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [communicationError, setCommunicationError] = useState(null);
 
   // Fetch property data
   useEffect(() => {
@@ -41,6 +46,54 @@ const PropertyDetail = () => {
     }
   }, [id]);
 
+  // Handle communication (WhatsApp or Email)
+  const handleCommunication = (type) => {
+    setCommunicationError(null);
+
+    if (!property) return;
+
+    try {
+      // Create agent object from property data
+      const agent = {
+        name: property.agent_name || "UrbanEdge Agent",
+        email: property.agent_email || "contact@urbanedge.com",
+        whatsapp_link: property.agent_whatsapp_link || null,
+      };
+
+      // Basic user info (since we don't have a form here)
+      const userInfo = {
+        name: "Interested Client",
+        email: "client@example.com", // This will be replaced by user's actual email in the message
+        phone: "",
+      };
+
+      const propertyInfo = {
+        id: property.id,
+        title: property.title,
+      };
+
+      const result = handleCommunicationAction(type, {
+        agent,
+        userInfo,
+        propertyInfo,
+        inquiryType: "contact",
+        customMessage: `I'm interested in this property and would like more information.`,
+        tourDetails: {},
+      });
+
+      if (result.success) {
+        // Open the communication link
+        window.open(result.url, "_blank");
+      } else {
+        setCommunicationError(result.error);
+      }
+    } catch (error) {
+      setCommunicationError(
+        "Failed to generate communication link. Please try again."
+      );
+    }
+  };
+
   // Format price display
   // const formatPrice = (price) => {
   //   const formattedNumber = new Intl.NumberFormat("en-NG", {
@@ -53,9 +106,7 @@ const PropertyDetail = () => {
   // Get sorted images with reliable fallback
   const getSortedImages = () => {
     if (!property?.property_images || !property.property_images.length) {
-      return [
-        { image_url: getFallbackImage('gallery') },
-      ];
+      return [{ image_url: getFallbackImage("gallery") }];
     }
 
     return [...property.property_images].sort((a, b) => a.order - b.order);
@@ -142,7 +193,7 @@ const PropertyDetail = () => {
             </div>
             <div className="mt-4 md:mt-0">
               <p className="text-3xl font-bold text-blue-600">
-               {formatPropertyPrice(property.price)}
+                {formatPropertyPrice(property.price)}
               </p>
               <p className="text-gray-500 text-right">
                 {property.sale_type?.name}
@@ -159,7 +210,7 @@ const PropertyDetail = () => {
                 src={sortedImages[activeImageIndex]?.image_url}
                 alt={`Property ${activeImageIndex + 1}`}
                 className="w-full h-full object-cover"
-                onError={(e) => handleImageError(e, 'gallery')}
+                onError={(e) => handleImageError(e, "gallery")}
               />
 
               {sortedImages.length > 1 && (
@@ -167,7 +218,7 @@ const PropertyDetail = () => {
                   <button
                     onClick={() =>
                       setActiveImageIndex((prev) =>
-                        prev === 0 ? sortedImages.length - 1 : prev - 1,
+                        prev === 0 ? sortedImages.length - 1 : prev - 1
                       )
                     }
                     className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-2 hover:bg-opacity-75 focus:outline-none"
@@ -190,7 +241,7 @@ const PropertyDetail = () => {
                   <button
                     onClick={() =>
                       setActiveImageIndex((prev) =>
-                        prev === sortedImages.length - 1 ? 0 : prev + 1,
+                        prev === sortedImages.length - 1 ? 0 : prev + 1
                       )
                     }
                     className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-2 hover:bg-opacity-75 focus:outline-none"
@@ -221,7 +272,11 @@ const PropertyDetail = () => {
                 <div
                   key={index}
                   onClick={() => setActiveImageIndex(index)}
-                  className={`cursor-pointer h-20 w-20 flex-shrink-0 rounded-md overflow-hidden border-2 ${index === activeImageIndex ? "border-blue-500" : "border-transparent"}`}
+                  className={`cursor-pointer h-20 w-20 flex-shrink-0 rounded-md overflow-hidden border-2 ${
+                    index === activeImageIndex
+                      ? "border-blue-500"
+                      : "border-transparent"
+                  }`}
                 >
                   <img
                     src={image.image_url}
@@ -325,16 +380,52 @@ const PropertyDetail = () => {
                 Interested in this property? Contact us for more information or
                 to schedule a viewing.
               </p>
-              <button
-                className="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                onClick={() =>
-                  (window.location.href =
-                    "mailto:contact@urbanedge.com?subject=Inquiry about " +
-                    property.title)
-                }
-              >
-                Contact Agent
-              </button>
+
+              {/* Error Message */}
+              {communicationError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
+                  {communicationError}
+                </div>
+              )}
+
+              {/* Communication Buttons */}
+              <div className="space-y-3">
+                {/* WhatsApp Button (Primary) */}
+                <button
+                  onClick={() => handleCommunication("whatsapp")}
+                  className="w-full flex items-center justify-center px-4 py-3 bg-green-500 text-white font-medium rounded-lg hover:bg-green-600 transition-colors duration-200"
+                >
+                  <svg
+                    className="w-5 h-5 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488" />
+                  </svg>
+                  Contact via WhatsApp
+                </button>
+
+                {/* Email Button (Secondary) */}
+                <button
+                  onClick={() => handleCommunication("email")}
+                  className="w-full flex items-center justify-center px-4 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 border border-gray-300 transition-colors duration-200"
+                >
+                  <svg
+                    className="w-5 h-5 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
+                  </svg>
+                  Contact via Email
+                </button>
+              </div>
             </div>
           </div>
         </div>

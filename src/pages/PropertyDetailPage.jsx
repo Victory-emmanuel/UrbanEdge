@@ -44,20 +44,21 @@ const PropertyDetailPage = () => {
           throw new Error("Property not found");
         }
 
-        console.log('PropertyDetailPage: Fetched property data:', data);
+        console.log("PropertyDetailPage: Fetched property data:", data);
 
         // Handle the nested structure returned by get_property_details
         const propertyData = data.property || data;
         const propertyWithImages = {
           ...propertyData,
           images: data.images || [],
-          features: data.features || []
+          features: data.features || [],
         };
 
         setProperty(propertyWithImages);
 
         // Fetch similar properties based on property type
-        const propertyTypeId = propertyData.property_type_id || data.property_type_id;
+        const propertyTypeId =
+          propertyData.property_type_id || data.property_type_id;
         if (propertyTypeId) {
           const similarParams = {
             property_type_ids: [propertyTypeId],
@@ -66,8 +67,9 @@ const PropertyDetailPage = () => {
             exclude_property_id: id,
           };
 
-          const { data: similarData } =
-            await propertyService.getProperties(similarParams);
+          const { data: similarData } = await propertyService.getProperties(
+            similarParams
+          );
           if (similarData && similarData.properties) {
             setSimilarProperties(similarData.properties);
           }
@@ -150,16 +152,24 @@ const PropertyDetailPage = () => {
   // Convert features array to expected format for PropertyFeatures component
   const amenities =
     property.features?.map((feature) =>
-      feature.name.toLowerCase().replace(/\s+/g, ""),
+      feature.name.toLowerCase().replace(/\s+/g, "")
     ) || [];
 
   return (
     <>
       <Helmet>
-        <title>{property?.title || "Property Details"} | UrbanEdge Real Estate</title>
+        <title>
+          {property?.title || "Property Details"} | UrbanEdge Real Estate
+        </title>
         <meta
           name="description"
-          content={`${property?.title || "Property"} - ${property?.location || "Location"}. ${property?.bedrooms || 0} bedrooms, ${property?.bathrooms || 0} bathrooms, ${property?.square_feet || 0} sqft. Offered at $${property?.price?.toLocaleString() || "N/A"}.`}
+          content={`${property?.title || "Property"} - ${
+            property?.location || "Location"
+          }. ${property?.bedrooms || 0} bedrooms, ${
+            property?.bathrooms || 0
+          } bathrooms, ${property?.square_feet || 0} sqft. Offered at $${
+            property?.price?.toLocaleString() || "N/A"
+          }.`}
         />
       </Helmet>
 
@@ -179,13 +189,16 @@ const PropertyDetailPage = () => {
           {/* Property Gallery */}
           <div className="mb-8">
             <PropertyGallery
-              images={property.images?.map((img) => ({
-                url: img.url || img.image_url,
-                alt: property.title || "Property image",
-              })) || property.property_images?.map((img) => ({
-                url: img.image_url || img.url,
-                alt: property.title || "Property image",
-              }))}
+              images={
+                property.images?.map((img) => ({
+                  url: img.url || img.image_url,
+                  alt: property.title || "Property image",
+                })) ||
+                property.property_images?.map((img) => ({
+                  url: img.image_url || img.url,
+                  alt: property.title || "Property image",
+                }))
+              }
             />
           </div>
 
@@ -249,7 +262,8 @@ const PropertyDetailPage = () => {
                 </h2>
                 <div className="mb-4">
                   <p className="text-brown dark:text-beige-medium">
-                    <span className="font-semibold">Address:</span> {property.location}
+                    <span className="font-semibold">Address:</span>{" "}
+                    {property.location}
                   </p>
                 </div>
                 <PropertyLocationMap
@@ -300,14 +314,29 @@ const PropertyDetailPage = () => {
               >
                 <PropertyContactForm
                   agent={{
-                    name: property.agent_name || property.agent?.name || "UrbanEdge Agent",
+                    name:
+                      property.agent_name ||
+                      property.agent?.name ||
+                      "UrbanEdge Agent",
                     title: "Real Estate Agent",
-                    phone: property.agent_phone || property.agent?.phone || "(555) 123-4567",
-                    email: property.agent_email || property.agent?.email || "contact@urbanedge.com",
-                    whatsapp_link: property.agent_whatsapp_link || property.agent?.whatsapp_link || null,
-                    photo: property.agent?.photo || "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
+                    phone:
+                      property.agent_phone ||
+                      property.agent?.phone ||
+                      "(555) 123-4567",
+                    email:
+                      property.agent_email ||
+                      property.agent?.email ||
+                      "contact@urbanedge.com",
+                    whatsapp_link:
+                      property.agent_whatsapp_link ||
+                      property.agent?.whatsapp_link ||
+                      null,
+                    photo:
+                      property.agent?.photo ||
+                      "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
                   }}
                   propertyTitle={property.title}
+                  propertyId={property.id}
                 />
               </motion.div>
 

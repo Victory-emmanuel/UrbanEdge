@@ -30,7 +30,8 @@ const ChatbotWidget = () => {
 
     // Create and configure the JotForm script element
     const script = document.createElement("script");
-    script.src = "https://cdn.jotfor.ms/agent/embedjs/01977ef6126a721ca60420e562e7a5468ca6/embed.js?skipWelcome=1&maximizable=1";
+    script.src =
+      "https://cdn.jotfor.ms/agent/embedjs/01977ef6126a721ca60420e562e7a5468ca6/embed.js?skipWelcome=1&maximizable=1";
     script.async = true;
 
     // Handle successful script loading
@@ -65,7 +66,9 @@ const ChatbotWidget = () => {
   // The JotForm script will handle rendering the chatbot widget
   if (scriptError) {
     // Optional: You could render a fallback UI here
-    console.warn("JotForm AI Chatbot failed to load. Consider implementing a fallback.");
+    console.warn(
+      "JotForm AI Chatbot failed to load. Consider implementing a fallback."
+    );
     return null;
   }
 

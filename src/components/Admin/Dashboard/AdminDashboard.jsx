@@ -129,7 +129,7 @@ const AdminDashboard = () => {
     try {
       // Show loading state or notification if needed
       setLoading(true);
-      
+
       // Fetch all properties if not already loaded
       let propertiesToExport = properties;
       if (!propertiesToExport || propertiesToExport.length === 0) {
@@ -137,7 +137,7 @@ const AdminDashboard = () => {
         if (error) throw error;
         propertiesToExport = data || [];
       }
-      
+
       // Convert properties to CSV format
       const headers = [
         "ID",
@@ -151,41 +151,50 @@ const AdminDashboard = () => {
         "Sale Type",
         "Description",
         "Created At",
-        "Updated At"
+        "Updated At",
       ];
-      
+
       const csvRows = [
         headers.join(","), // Header row
-        ...propertiesToExport.map(property => [
-          property.id,
-          `"${property.title?.replace(/"/g, '""') || ''}"`, // Escape quotes in CSV
-          `"${property.location?.replace(/"/g, '""') || ''}"`,
-          property.price || '',
-          property.bedrooms || '',
-          property.bathrooms || '',
-          property.square_feet || '',
-          `"${property.property_type?.replace(/"/g, '""') || ''}"`,
-          `"${property.sale_type?.replace(/"/g, '""') || ''}"`,
-          `"${property.description?.replace(/"/g, '""') || ''}"`,
-          property.created_at ? new Date(property.created_at).toLocaleString() : '',
-          property.updated_at ? new Date(property.updated_at).toLocaleString() : ''
-        ].join(","))
+        ...propertiesToExport.map((property) =>
+          [
+            property.id,
+            `"${property.title?.replace(/"/g, '""') || ""}"`, // Escape quotes in CSV
+            `"${property.location?.replace(/"/g, '""') || ""}"`,
+            property.price || "",
+            property.bedrooms || "",
+            property.bathrooms || "",
+            property.square_feet || "",
+            `"${property.property_type?.replace(/"/g, '""') || ""}"`,
+            `"${property.sale_type?.replace(/"/g, '""') || ""}"`,
+            `"${property.description?.replace(/"/g, '""') || ""}"`,
+            property.created_at
+              ? new Date(property.created_at).toLocaleString()
+              : "",
+            property.updated_at
+              ? new Date(property.updated_at).toLocaleString()
+              : "",
+          ].join(",")
+        ),
       ];
-      
+
       const csvContent = csvRows.join("\n");
-      
+
       // Create a Blob with the CSV data
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      
+
       // Create a download link and trigger the download
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
-      link.setAttribute("download", `urbanedge-properties-${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute(
+        "download",
+        `urbanedge-properties-${new Date().toISOString().split("T")[0]}.csv`
+      );
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       // Clean up
       setLoading(false);
     } catch (err) {
@@ -200,7 +209,7 @@ const AdminDashboard = () => {
     try {
       // Show loading state or notification if needed
       setLoading(true);
-      
+
       // Fetch all properties if not already loaded
       let propertiesToExport = properties;
       if (!propertiesToExport || propertiesToExport.length === 0) {
@@ -208,22 +217,29 @@ const AdminDashboard = () => {
         if (error) throw error;
         propertiesToExport = data || [];
       }
-      
+
       // Convert properties to a plain text string (JSON format)
       const textContent = JSON.stringify(propertiesToExport, null, 2);
-      
+
       // Create a Blob with the plain text data
-      const blob = new Blob([textContent], { type: "text/plain;charset=utf-8;" });
-      
+      const blob = new Blob([textContent], {
+        type: "text/plain;charset=utf-8;",
+      });
+
       // Create a download link and trigger the download
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
-      link.setAttribute("download", `urbanedge-properties-json-${new Date().toISOString().split('T')[0]}.txt`);
+      link.setAttribute(
+        "download",
+        `urbanedge-properties-json-${
+          new Date().toISOString().split("T")[0]
+        }.txt`
+      );
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       // Clean up
       setLoading(false);
     } catch (err) {

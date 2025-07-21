@@ -270,7 +270,9 @@ const PropertiesPage = () => {
                     <PropertyMap
                       properties={properties}
                       selectedPropertyId={selectedPropertyId}
-                      onPropertySelect={(property) => setSelectedPropertyId(property.id)}
+                      onPropertySelect={(property) =>
+                        setSelectedPropertyId(property.id)
+                      }
                     />
                   </div>
                 )}
