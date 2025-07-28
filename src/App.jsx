@@ -12,6 +12,10 @@ import BlogPage from "./pages/BlogPage";
 import BlogPostPage from "./pages/BlogPostPage";
 import ContactPage from "./pages/ContactPage";
 import MapDemoPage from "./pages/MapDemoPage";
+import FAQPage from "./pages/FAQPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import CareersPage from "./pages/CareersPage";
+import GuidesPage from "./pages/GuidesPage";
 
 // Admin Components
 import AdminDashboard from "./components/Admin/Dashboard/AdminDashboard";
@@ -75,6 +79,17 @@ function App() {
                   <Route path="/contact" element={<ContactPage />} />
 
                   <Route path="/map-demo" element={<MapDemoPage />} />
+
+                  <Route path="/faq" element={<FAQPage />} />
+
+                  <Route
+                    path="/privacy-policy"
+                    element={<PrivacyPolicyPage />}
+                  />
+
+                  <Route path="/careers" element={<CareersPage />} />
+
+                  <Route path="/guides" element={<GuidesPage />} />
 
                   {/* Client Dashboard Routes */}
                   <Route

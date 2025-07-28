@@ -21,6 +21,7 @@ const navLinks = [
   { name: "Services", path: "/services" },
   { name: "About", path: "/about" },
   { name: "Blog", path: "/blog" },
+  { name: "Contact", path: "/contact" },
 ];
 
 const Navbar = () => {
@@ -223,6 +224,7 @@ const Navbar = () => {
               {link.name}
             </Typography>
           ))}
+
           <div className="flex flex-col space-y-3 pt-4 border-t border-beige-medium dark:border-brown">
             {user ? (
               <>
