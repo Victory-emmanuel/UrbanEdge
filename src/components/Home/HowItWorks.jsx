@@ -23,8 +23,7 @@ const steps = [
     title: "Close the Deal",
     description:
       "From offer to closing, we handle the negotiations, paperwork, and logistics to ensure a smooth and successful transaction.",
-    image:
-      "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+    image: "https://i.postimg.cc/CMRmVQXS/19117.jpg",
   },
 ];
 
