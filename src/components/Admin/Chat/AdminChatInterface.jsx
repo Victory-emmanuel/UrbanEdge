@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { 
+import {
   ChatBubbleLeftRightIcon,
   PaperAirplaneIcon,
   UserIcon,
@@ -7,7 +7,7 @@ import {
   ClockIcon,
   Bars3Icon,
   XMarkIcon,
-  TrashIcon
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 import { chatService } from "../../../lib/chatService";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -27,7 +27,7 @@ import {
   Dialog,
   DialogHeader,
   DialogBody,
-  DialogFooter
+  DialogFooter,
 } from "@material-tailwind/react";
 
 /**
@@ -87,7 +87,7 @@ const AdminChatInterface = () => {
     try {
       setLoading(true);
       const { data, error } = await chatService.getUserConversations();
-      
+
       if (error) throw error;
       setConversations(data || []);
     } catch (error) {
@@ -101,8 +101,10 @@ const AdminChatInterface = () => {
     if (!activeConversation) return;
 
     try {
-      const { data, error } = await chatService.getConversationMessages(activeConversation.id);
-      
+      const { data, error } = await chatService.getConversationMessages(
+        activeConversation.id
+      );
+
       if (error) throw error;
       setMessages(data || []);
     } catch (error) {
@@ -117,8 +119,8 @@ const AdminChatInterface = () => {
       activeConversation.id,
       (payload) => {
         const newMessage = payload.new;
-        setMessages(prev => [...prev, newMessage]);
-        
+        setMessages((prev) => [...prev, newMessage]);
+
         // Mark as read if not sent by current user
         if (newMessage.sender_id !== user.id) {
           markMessagesAsRead();
@@ -141,9 +143,9 @@ const AdminChatInterface = () => {
     try {
       await chatService.markMessagesAsRead(activeConversation.id);
       // Update conversation unread count
-      setConversations(prev => 
-        prev.map(conv => 
-          conv.id === activeConversation.id 
+      setConversations((prev) =>
+        prev.map((conv) =>
+          conv.id === activeConversation.id
             ? { ...conv, unread_count: 0 }
             : conv
         )
@@ -167,15 +169,15 @@ const AdminChatInterface = () => {
         sender_is_admin: true,
         content: newMessage.trim(),
         created_at: new Date().toISOString(),
-        read: true
+        read: true,
       };
-      
+
       // Add the temporary message to the UI
-      setMessages(prev => [...prev, tempMessage]);
-      
+      setMessages((prev) => [...prev, tempMessage]);
+
       // Clear the input field
       setNewMessage("");
-      
+
       // Send the message to the server
       const { data, error } = await chatService.sendMessage(
         activeConversation.id,
@@ -183,7 +185,7 @@ const AdminChatInterface = () => {
       );
 
       if (error) throw error;
-      
+
       // The actual message will be added via subscription and replace the temp one
     } catch (error) {
       console.error("Error sending message:", error);
@@ -194,25 +196,29 @@ const AdminChatInterface = () => {
 
   const handleDeleteConversation = async () => {
     if (!conversationToDelete) return;
-    
+
     try {
-      const { error } = await chatService.deleteConversation(conversationToDelete);
-      
+      const { error } = await chatService.deleteConversation(
+        conversationToDelete
+      );
+
       if (error) throw error;
-      
+
       // Remove the conversation from the list
-      setConversations(prev => prev.filter(conv => conv.id !== conversationToDelete));
-      
+      setConversations((prev) =>
+        prev.filter((conv) => conv.id !== conversationToDelete)
+      );
+
       // If this was the active conversation, clear it
       if (activeConversation?.id === conversationToDelete) {
         setActiveConversation(null);
         setMessages([]);
       }
-      
+
       // Close the dialog
       setDeleteDialog(false);
       setConversationToDelete(null);
-      
+
       // Close the drawer on mobile
       setOpenDrawer(false);
     } catch (error) {
@@ -222,14 +228,16 @@ const AdminChatInterface = () => {
 
   const handleAssignToSelf = async (conversationId) => {
     try {
-      const { data, error } = await chatService.assignAdminToConversation(conversationId);
-      
+      const { data, error } = await chatService.assignAdminToConversation(
+        conversationId
+      );
+
       if (error) throw error;
-      
+
       // Update the conversation in the list
-      setConversations(prev => 
-        prev.map(conv => 
-          conv.id === conversationId 
+      setConversations((prev) =>
+        prev.map((conv) =>
+          conv.id === conversationId
             ? { ...conv, admin_id: user.id, admin_email: user.email }
             : conv
         )
@@ -237,10 +245,10 @@ const AdminChatInterface = () => {
 
       // If this is the active conversation, update it too
       if (activeConversation?.id === conversationId) {
-        setActiveConversation(prev => ({
+        setActiveConversation((prev) => ({
           ...prev,
           admin_id: user.id,
-          admin_email: user.email
+          admin_email: user.email,
         }));
       }
     } catch (error) {
@@ -250,7 +258,7 @@ const AdminChatInterface = () => {
 
   const formatMessageTime = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
   const formatConversationTime = (dateString) => {
@@ -258,7 +266,7 @@ const AdminChatInterface = () => {
     const now = new Date();
     const diffTime = Math.abs(now - date);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 1) return "1 day ago";
     if (diffDays < 7) return `${diffDays} days ago`;
     return date.toLocaleDateString();
@@ -272,7 +280,11 @@ const AdminChatInterface = () => {
           <Typography variant="h6" color="blue-gray">
             Admin Access Required
           </Typography>
-          <Typography variant="paragraph" color="blue-gray" className="mt-2 font-normal opacity-70">
+          <Typography
+            variant="paragraph"
+            color="blue-gray"
+            className="mt-2 font-normal opacity-70"
+          >
             You need administrator privileges to access this feature
           </Typography>
         </CardBody>
@@ -301,8 +313,12 @@ const AdminChatInterface = () => {
       </div>
 
       {/* Mobile Drawer for Conversations */}
-      
-      <Drawer open={openDrawer} onClose={() => setOpenDrawer(false)} className="p-4">
+
+      <Drawer
+        open={openDrawer}
+        onClose={() => setOpenDrawer(false)}
+        className="p-4"
+      >
         <div className="flex items-center justify-between mb-6">
           <Typography variant="h5" color="blue-gray">
             Conversations
@@ -311,12 +327,16 @@ const AdminChatInterface = () => {
             <XMarkIcon className="h-5 w-5" />
           </IconButton>
         </div>
-        
+
         <div className="overflow-y-auto">
           {conversations.length === 0 ? (
             <div className="p-4 text-center">
               <ChatBubbleLeftRightIcon className="h-8 w-8 mx-auto mb-2 text-blue-gray-300" />
-              <Typography variant="small" color="blue-gray" className="font-normal">
+              <Typography
+                variant="small"
+                color="blue-gray"
+                className="font-normal"
+              >
                 No conversations yet
               </Typography>
             </div>
@@ -329,27 +349,27 @@ const AdminChatInterface = () => {
                   setOpenDrawer(false);
                 }}
                 className={`p-3 border-b border-blue-gray-50 cursor-pointer hover:bg-blue-gray-50/30 transition-colors ${
-                  activeConversation?.id === conversation.id ? 'bg-blue-50' : ''
+                  activeConversation?.id === conversation.id ? "bg-blue-50" : ""
                 }`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center mb-1">
                       <UserIcon className="h-4 w-4 text-blue-gray-400 mr-1" />
-                      <Typography 
-                        variant="small" 
-                        color="blue-gray" 
+                      <Typography
+                        variant="small"
+                        color="blue-gray"
                         className="font-medium truncate"
                       >
                         {conversation.client_email}
                       </Typography>
                     </div>
-                    <Typography 
-                      variant="small" 
-                      color="blue-gray" 
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
                       className="text-xs opacity-70 truncate"
                     >
-                      {conversation.subject || 'General Inquiry'}
+                      {conversation.subject || "General Inquiry"}
                     </Typography>
                     <div className="flex items-center mt-1">
                       {conversation.admin_id ? (
@@ -379,8 +399,8 @@ const AdminChatInterface = () => {
                           className="text-xs py-0.5 px-1"
                         />
                       )}
-                      <Typography 
-                        variant="small" 
+                      <Typography
+                        variant="small"
                         className="text-xs text-blue-gray-400 ml-2"
                       >
                         {formatConversationTime(conversation.updated_at)}
@@ -393,9 +413,9 @@ const AdminChatInterface = () => {
                         <div className="w-5 h-5"></div>
                       </Badge>
                     )}
-                    <IconButton 
-                      variant="text" 
-                      size="sm" 
+                    <IconButton
+                      variant="text"
+                      size="sm"
                       color="red"
                       className="ml-1"
                       onClick={(e) => {
@@ -418,7 +438,8 @@ const AdminChatInterface = () => {
       <Dialog open={deleteDialog} handler={() => setDeleteDialog(false)}>
         <DialogHeader>Confirm Deletion</DialogHeader>
         <DialogBody>
-          Are you sure you want to delete this conversation? This action cannot be undone.
+          Are you sure you want to delete this conversation? This action cannot
+          be undone.
         </DialogBody>
         <DialogFooter>
           <Button
@@ -429,7 +450,11 @@ const AdminChatInterface = () => {
           >
             Cancel
           </Button>
-          <Button variant="gradient" color="red" onClick={handleDeleteConversation}>
+          <Button
+            variant="gradient"
+            color="red"
+            onClick={handleDeleteConversation}
+          >
             Delete
           </Button>
         </DialogFooter>
@@ -443,7 +468,11 @@ const AdminChatInterface = () => {
             <Typography variant="h6" color="blue-gray">
               Client Conversations
             </Typography>
-            <Typography variant="small" color="blue-gray" className="font-normal opacity-70">
+            <Typography
+              variant="small"
+              color="blue-gray"
+              className="font-normal opacity-70"
+            >
               {conversations.length} total conversations
             </Typography>
           </div>
@@ -452,7 +481,11 @@ const AdminChatInterface = () => {
             {conversations.length === 0 ? (
               <div className="p-4 text-center">
                 <ChatBubbleLeftRightIcon className="h-8 w-8 mx-auto mb-2 text-blue-gray-300" />
-                <Typography variant="small" color="blue-gray" className="font-normal">
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
                   No conversations yet
                 </Typography>
               </div>
@@ -462,27 +495,29 @@ const AdminChatInterface = () => {
                   key={conversation.id}
                   onClick={() => setActiveConversation(conversation)}
                   className={`p-3 border-b border-blue-gray-50 cursor-pointer hover:bg-blue-gray-50/30 transition-colors ${
-                    activeConversation?.id === conversation.id ? 'bg-blue-50' : ''
+                    activeConversation?.id === conversation.id
+                      ? "bg-blue-50"
+                      : ""
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center mb-1">
                         <UserIcon className="h-4 w-4 text-blue-gray-400 mr-1" />
-                        <Typography 
-                          variant="small" 
-                          color="blue-gray" 
+                        <Typography
+                          variant="small"
+                          color="blue-gray"
                           className="font-medium truncate"
                         >
                           {conversation.client_email}
                         </Typography>
                       </div>
-                      <Typography 
-                        variant="small" 
-                        color="blue-gray" 
+                      <Typography
+                        variant="small"
+                        color="blue-gray"
                         className="text-xs opacity-70 truncate"
                       >
-                        {conversation.subject || 'General Inquiry'}
+                        {conversation.subject || "General Inquiry"}
                       </Typography>
                       <div className="flex items-center mt-1">
                         {conversation.admin_id ? (
@@ -512,8 +547,8 @@ const AdminChatInterface = () => {
                             className="text-xs py-0.5 px-1"
                           />
                         )}
-                        <Typography 
-                          variant="small" 
+                        <Typography
+                          variant="small"
                           className="text-xs text-blue-gray-400 ml-2"
                         >
                           {formatConversationTime(conversation.updated_at)}
@@ -526,9 +561,9 @@ const AdminChatInterface = () => {
                           <div className="w-5 h-5"></div>
                         </Badge>
                       )}
-                      <IconButton 
-                        variant="text" 
-                        size="sm" 
+                      <IconButton
+                        variant="text"
+                        size="sm"
                         color="red"
                         className="ml-1"
                         onClick={(e) => {
@@ -555,9 +590,9 @@ const AdminChatInterface = () => {
               <div className="p-4 border-b border-blue-gray-100">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <IconButton 
-                      variant="text" 
-                      size="sm" 
+                    <IconButton
+                      variant="text"
+                      size="sm"
                       color="blue-gray"
                       className="mr-2 md:hidden"
                       onClick={() => setOpenDrawer(true)}
@@ -566,9 +601,13 @@ const AdminChatInterface = () => {
                     </IconButton>
                     <div>
                       <Typography variant="h6" color="blue-gray">
-                        {activeConversation.subject || 'General Inquiry'}
+                        {activeConversation.subject || "General Inquiry"}
                       </Typography>
-                      <Typography variant="small" color="blue-gray" className="font-normal opacity-70">
+                      <Typography
+                        variant="small"
+                        color="blue-gray"
+                        className="font-normal opacity-70"
+                      >
                         Client: {activeConversation.client_email}
                       </Typography>
                     </div>
@@ -578,14 +617,16 @@ const AdminChatInterface = () => {
                       <Button
                         size="sm"
                         color="blue"
-                        onClick={() => handleAssignToSelf(activeConversation.id)}
+                        onClick={() =>
+                          handleAssignToSelf(activeConversation.id)
+                        }
                       >
                         Assign to Me
                       </Button>
                     )}
-                    <IconButton 
-                      variant="text" 
-                      size="sm" 
+                    <IconButton
+                      variant="text"
+                      size="sm"
                       color="red"
                       className="md:hidden"
                       onClick={() => {
@@ -604,25 +645,32 @@ const AdminChatInterface = () => {
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={`flex ${message.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
+                    className={`flex ${
+                      message.sender_id === user.id
+                        ? "justify-end"
+                        : "justify-start"
+                    }`}
                   >
                     <div
                       className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
                         message.sender_id === user.id
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-blue-gray-50 text-blue-gray-800'
+                          ? "bg-blue-500 text-white"
+                          : "bg-blue-gray-50 text-blue-gray-800"
                       }`}
                     >
                       <Typography variant="small" className="font-normal">
                         {message.content}
                       </Typography>
-                      <Typography 
-                        variant="small" 
+                      <Typography
+                        variant="small"
                         className={`text-xs mt-1 ${
-                          message.sender_id === user.id ? 'text-blue-100' : 'text-blue-gray-500'
+                          message.sender_id === user.id
+                            ? "text-blue-100"
+                            : "text-blue-gray-500"
                         }`}
                       >
-                        {message.sender_is_admin ? 'Admin' : 'Client'} • {formatMessageTime(message.created_at)}
+                        {message.sender_is_admin ? "Admin" : "Client"} •{" "}
+                        {formatMessageTime(message.created_at)}
                       </Typography>
                     </div>
                   </div>
@@ -666,8 +714,12 @@ const AdminChatInterface = () => {
                 <Typography color="blue-gray" className="font-normal">
                   {conversations.length > 0 ? (
                     <>
-                      <span className="md:hidden">Open the menu to select a conversation</span>
-                      <span className="hidden md:inline">Select a conversation to start responding</span>
+                      <span className="md:hidden">
+                        Open the menu to select a conversation
+                      </span>
+                      <span className="hidden md:inline">
+                        Select a conversation to start responding
+                      </span>
                     </>
                   ) : (
                     "No conversations available"

@@ -491,8 +491,8 @@ const PropertyForm = () => {
 
               <p className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
                 <strong>Tip:</strong> Enter the location address above and click
-                "Auto-Find Coordinates" to automatically populate these fields,
-                or enter coordinates manually.
+                "Auto-Find Coordinates&quot; to automatically populate these
+                fields, or enter coordinates manually.
               </p>
             </div>
 

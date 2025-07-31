@@ -9,6 +9,7 @@ import {
 import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
 import { motion } from "framer-motion";
 import { propertyService } from "../lib/propertyService";
+import { formatPropertyPrice } from "../utils/currencyUtils";
 
 import PropertyGallery from "../components/Properties/PropertyDetail/PropertyGallery";
 import PropertyFeatures from "../components/Properties/PropertyDetail/PropertyFeatures";
@@ -168,7 +169,7 @@ const PropertyDetailPage = () => {
           }. ${property?.bedrooms || 0} bedrooms, ${
             property?.bathrooms || 0
           } bathrooms, ${property?.square_feet || 0} sqft. Offered at $${
-            property?.price?.toLocaleString() || "N/A"
+            formatPropertyPrice(property?.price) || "N/A"
           }.`}
         />
       </Helmet>
@@ -213,7 +214,7 @@ const PropertyDetailPage = () => {
                   {property.location}
                 </p>
                 <p className="text-2xl font-heading font-bold text-taupe">
-                  ${property.price?.toLocaleString() || "N/A"}
+                  {formatPropertyPrice(property.price) || "N/A"}
                 </p>
               </div>
               <div className="flex space-x-3">

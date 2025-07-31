@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
 import { propertyService } from "../../../lib/propertyService";
 import { userService } from "../../../lib/userService";
+import { formatPropertyPrice } from "../../../utils/currencyUtils";
 import AdminChatInterface from "../Chat/AdminChatInterface";
 import {
   HomeIcon,
@@ -26,12 +27,9 @@ import {
   TabsBody,
   Tab,
   TabPanel,
-  Avatar,
   IconButton,
-  Badge,
   Chip,
 } from "@material-tailwind/react";
-import { supabase } from "../../../lib/supabase";
 
 /**
  * Admin Dashboard component
@@ -438,7 +436,7 @@ const AdminDashboard = () => {
                                   color="blue-gray"
                                   className="font-normal"
                                 >
-                                  ${property.price.toLocaleString()}
+                                  {formatPropertyPrice(property.price)}
                                 </Typography>
                               </td>
                               <td className="p-4">
