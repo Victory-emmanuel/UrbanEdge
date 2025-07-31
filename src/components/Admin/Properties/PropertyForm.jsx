@@ -8,7 +8,7 @@ import {
   isValidImageUrl,
   sanitizeImageUrl,
   getFallbackImage,
-  preloadImage
+  preloadImage,
 } from "../../../utils/imageUtils";
 
 /**
@@ -45,8 +45,8 @@ const PropertyForm = () => {
       agentName: "UrbanEdge Agent",
       agentEmail: "contact@urbanedge.com",
       agentPhone: "",
-      agentWhatsappLink: ""
-    }
+      agentWhatsappLink: "",
+    },
   });
 
   const [loading, setLoading] = useState(false);
@@ -99,6 +99,12 @@ const PropertyForm = () => {
     const fetchProperty = async () => {
       if (!isEditMode) return;
 
+      // Wait for reference data to be loaded before fetching property
+      if (propertyTypes.length === 0 || saleTypes.length === 0) {
+        console.log("Waiting for reference data to load...");
+        return;
+      }
+
       setLoading(true);
       setError(null);
 
@@ -107,37 +113,61 @@ const PropertyForm = () => {
         if (error) throw error;
         if (!data) throw new Error("Property not found");
 
-        console.log('Fetched property data:', data); // Debug log
+        console.log("Fetched property data:", data); // Debug log
 
         // Handle the nested structure returned by get_property_details
         const propertyData = data.property || data;
 
+        console.log(
+          "Property type ID from data:",
+          propertyData.property_type_id
+        );
+        console.log("Sale type ID from data:", propertyData.sale_type_id);
+
         // Prepare form data for reset
         const formData = {
-          title: propertyData.title?.replace(/^"|"$/g, '') || "", // Remove quotes if present
-          location: propertyData.location?.replace(/^"|"$/g, '') || "",
+          title: propertyData.title?.replace(/^"|"$/g, "") || "", // Remove quotes if present
+          location: propertyData.location?.replace(/^"|"$/g, "") || "",
           price: propertyData.price || 0,
           bedrooms: propertyData.bedrooms || 0,
           bathrooms: propertyData.bathrooms || 0,
           squareFeet: propertyData.square_feet || 0,
-          description: propertyData.description?.replace(/^"|"$/g, '') || "",
+          description: propertyData.description?.replace(/^"|"$/g, "") || "",
           floorPlanUrl: propertyData.floor_plan_url || "",
-          neighborhood: propertyData.neighborhood?.replace(/^"|"$/g, '') || "",
-          propertyTypeId: propertyData.property_type_id || "",
-          saleTypeId: propertyData.sale_type_id || "",
-          latitude: propertyData.latitude ? propertyData.latitude.toString() : "",
-          longitude: propertyData.longitude ? propertyData.longitude.toString() : "",
-          // Agent contact information
-          agentName: propertyData.agent_name || "",
-          agentEmail: propertyData.agent_email || "",
-          agentPhone: propertyData.agent_phone || "",
-          agentWhatsappLink: propertyData.agent_whatsapp_link || ""
+          neighborhood: propertyData.neighborhood?.replace(/^"|"$/g, "") || "",
+          // Ensure propertyTypeId and saleTypeId are strings for select dropdowns
+          propertyTypeId: propertyData.property_type_id
+            ? propertyData.property_type_id.toString()
+            : "",
+          saleTypeId: propertyData.sale_type_id
+            ? propertyData.sale_type_id.toString()
+            : "",
+          latitude: propertyData.latitude
+            ? propertyData.latitude.toString()
+            : "",
+          longitude: propertyData.longitude
+            ? propertyData.longitude.toString()
+            : "",
+          // Agent contact information - remove quotes like other text fields
+          agentName: propertyData.agent_name?.replace(/^"|"$/g, "") || "",
+          agentEmail: propertyData.agent_email?.replace(/^"|"$/g, "") || "",
+          agentPhone: propertyData.agent_phone?.replace(/^"|"$/g, "") || "",
+          agentWhatsappLink:
+            propertyData.agent_whatsapp_link?.replace(/^"|"$/g, "") || "",
         };
 
-        console.log('Form data to reset with:', formData);
+        console.log("Form data to reset with:", formData);
 
         // Use reset instead of individual setValue calls for better form population
         reset(formData);
+
+        // Debug: Log the form values after reset
+        console.log("Form values after reset:", {
+          propertyTypeId: formData.propertyTypeId,
+          saleTypeId: formData.saleTypeId,
+          agentName: formData.agentName,
+          agentEmail: formData.agentEmail,
+        });
 
         // Set images - handle the structure returned by get_property_details
         if (data.images && data.images.length > 0) {
@@ -148,7 +178,10 @@ const PropertyForm = () => {
               order: img.order || 0,
             }))
           );
-        } else if (propertyData.property_images && propertyData.property_images.length > 0) {
+        } else if (
+          propertyData.property_images &&
+          propertyData.property_images.length > 0
+        ) {
           // Fallback for other data structures
           setImages(
             propertyData.property_images.map((img) => ({
@@ -161,12 +194,13 @@ const PropertyForm = () => {
 
         // Set features - handle the structure returned by get_property_details
         if (data.features && data.features.length > 0) {
-          const featureIds = data.features
-            .map((f) => f.id)
-            .filter(Boolean);
+          const featureIds = data.features.map((f) => f.id).filter(Boolean);
           setSelectedFeatures(featureIds);
-          console.log('Set selected features:', featureIds); // Debug log
-        } else if (propertyData.property_features && propertyData.property_features.length > 0) {
+          console.log("Set selected features:", featureIds); // Debug log
+        } else if (
+          propertyData.property_features &&
+          propertyData.property_features.length > 0
+        ) {
           // Fallback for other data structures
           const featureIds = propertyData.property_features
             .map((pf) => pf.feature?.id || pf.feature_id)
@@ -182,12 +216,12 @@ const PropertyForm = () => {
     };
 
     fetchProperty();
-  }, [id, isEditMode, reset]);
+  }, [id, isEditMode, reset, propertyTypes, saleTypes]);
 
   // Debug useEffect to monitor form values
   useEffect(() => {
     const subscription = watch((value, { name, type }) => {
-      console.log('Form value changed:', { name, type, value: value[name] });
+      console.log("Form value changed:", { name, type, value: value[name] });
     });
     return () => subscription.unsubscribe();
   }, [watch]);
@@ -200,42 +234,42 @@ const PropertyForm = () => {
     try {
       // Ensure proper data types for numeric fields and clean up data
       const propertyData = {
-        title: data.title?.trim() || '',
-        location: data.location?.trim() || '',
+        title: data.title?.trim() || "",
+        location: data.location?.trim() || "",
         price: parseFloat(data.price) || 0,
         bedrooms: parseInt(data.bedrooms) || 0,
         bathrooms: parseInt(data.bathrooms) || 0,
         squareFeet: parseInt(data.squareFeet) || 0,
-        description: data.description?.trim() || '',
-        floorPlanUrl: data.floorPlanUrl?.trim() || '',
-        neighborhood: data.neighborhood?.trim() || '',
-        propertyTypeId: data.propertyTypeId?.trim() || '',
-        saleTypeId: data.saleTypeId?.trim() || '',
+        description: data.description?.trim() || "",
+        floorPlanUrl: data.floorPlanUrl?.trim() || "",
+        neighborhood: data.neighborhood?.trim() || "",
+        propertyTypeId: data.propertyTypeId?.trim() || "",
+        saleTypeId: data.saleTypeId?.trim() || "",
         latitude: data.latitude ? parseFloat(data.latitude) : null,
         longitude: data.longitude ? parseFloat(data.longitude) : null,
         images: images,
         features: selectedFeatures,
         // Agent contact information
-        agentName: data.agentName?.trim() || '',
-        agentEmail: data.agentEmail?.trim() || '',
+        agentName: data.agentName?.trim() || "",
+        agentEmail: data.agentEmail?.trim() || "",
         agentPhone: data.agentPhone?.trim() || null,
         agentWhatsappLink: data.agentWhatsappLink?.trim() || null,
       };
 
       // Log the data being sent for debugging
-      console.log('Submitting property data:', propertyData);
+      console.log("Submitting property data:", propertyData);
 
       let result;
       if (isEditMode) {
-        console.log('Updating property with ID:', id);
+        console.log("Updating property with ID:", id);
         result = await propertyService.updateProperty(id, propertyData);
       } else {
-        console.log('Creating new property');
+        console.log("Creating new property");
         result = await propertyService.createProperty(propertyData);
       }
 
       if (result.error) {
-        console.error('Property service error:', result.error);
+        console.error("Property service error:", result.error);
         throw result.error;
       }
 
@@ -257,17 +291,21 @@ const PropertyForm = () => {
 
     // Validate the image URL
     if (!isValidImageUrl(newImageUrl)) {
-      setError("Please enter a valid image URL (must be a direct link to an image file or from a supported image hosting service)");
+      setError(
+        "Please enter a valid image URL (must be a direct link to an image file or from a supported image hosting service)"
+      );
       return;
     }
 
     // Sanitize the URL
-    const sanitizedUrl = sanitizeImageUrl(newImageUrl, 'form');
+    const sanitizedUrl = sanitizeImageUrl(newImageUrl, "form");
 
     // Optional: Preload image to verify it loads successfully
     const imageLoads = await preloadImage(sanitizedUrl);
     if (!imageLoads) {
-      setError("The image URL appears to be invalid or the image cannot be loaded. Please check the URL and try again.");
+      setError(
+        "The image URL appears to be invalid or the image cannot be loaded. Please check the URL and try again."
+      );
       return;
     }
 
@@ -319,10 +357,12 @@ const PropertyForm = () => {
         reset({
           ...watch(),
           latitude: coordinates.latitude.toString(),
-          longitude: coordinates.longitude.toString()
+          longitude: coordinates.longitude.toString(),
         });
       } else {
-        setError("Could not find coordinates for this location. Please enter them manually.");
+        setError(
+          "Could not find coordinates for this location. Please enter them manually."
+        );
       }
     } catch (err) {
       console.error("Geocoding error:", err);
@@ -340,329 +380,6 @@ const PropertyForm = () => {
     );
   }
 
-
-  //   <div className="container mx-auto p-6">
-  //     <h1 className="text-3xl font-bold mb-6">
-  //       {isEditMode ? "Edit Property" : "Add New Property"}
-  //     </h1>
-
-  //     {error && (
-  //       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-  //         {error}
-  //       </div>
-  //     )}
-
-  //     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-  //       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-  //         {/* Basic Information */}
-  //         <div className="space-y-4">
-  //           <h2 className="text-xl font-semibold">Basic Information</h2>
-
-  //           <div>
-  //             <label className="block text-sm font-medium text-gray-700 mb-1">
-  //               Title *
-  //             </label>
-  //             <input
-  //               type="text"
-  //               {...register("title", { required: "Title is required" })}
-  //               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-  //             />
-
-  //             {errors.title && (
-  //               <p className="mt-1 text-sm text-red-600">
-  //                 {errors.title.message}
-  //               </p>
-  //             )}
-  //           </div>
-
-  //           <div>
-  //             <label className="block text-sm font-medium text-gray-700 mb-1">
-  //               Location *
-  //             </label>
-  //             <input
-  //               type="text"
-  //               {...register("location", { required: "Location is required" })}
-  //               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-  //             />
-
-  //             {errors.location && (
-  //               <p className="mt-1 text-sm text-red-600">
-  //                 {errors.location.message}
-  //               </p>
-  //             )}
-  //           </div>
-
-  //           <div>
-  //             <label className="block text-sm font-medium text-gray-700 mb-1">
-  //               Neighborhood
-  //             </label>
-  //             <input
-  //               type="text"
-  //               {...register("neighborhood")}
-  //               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-  //             />
-  //           </div>
-
-  //           <div>
-  //             <label className="block text-sm font-medium text-gray-700 mb-1">
-  //               Price ($) *
-  //             </label>
-  //             <input
-  //               type="number"
-  //               {...register("price", {
-  //                 required: "Price is required",
-  //                 min: { value: 0, message: "Price must be positive" },
-  //               })}
-  //               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-  //             />
-
-  //             {errors.price && (
-  //               <p className="mt-1 text-sm text-red-600">
-  //                 {errors.price.message}
-  //               </p>
-  //             )}
-  //           </div>
-
-  //           <div className="grid grid-cols-3 gap-4">
-  //             <div>
-  //               <label className="block text-sm font-medium text-gray-700 mb-1">
-  //                 Bedrooms *
-  //               </label>
-  //               <input
-  //                 type="number"
-  //                 {...register("bedrooms", {
-  //                   required: "Required",
-  //                   min: { value: 0, message: "Min 0" },
-  //                 })}
-  //                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-  //               />
-
-  //               {errors.bedrooms && (
-  //                 <p className="mt-1 text-sm text-red-600">
-  //                   {errors.bedrooms.message}
-  //                 </p>
-  //               )}
-  //             </div>
-
-  //             <div>
-  //               <label className="block text-sm font-medium text-gray-700 mb-1">
-  //                 Bathrooms *
-  //               </label>
-  //               <input
-  //                 type="number"
-  //                 {...register("bathrooms", {
-  //                   required: "Required",
-  //                   min: { value: 0, message: "Min 0" },
-  //                 })}
-  //                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-  //               />
-
-  //               {errors.bathrooms && (
-  //                 <p className="mt-1 text-sm text-red-600">
-  //                   {errors.bathrooms.message}
-  //                 </p>
-  //               )}
-  //             </div>
-
-  //             <div>
-  //               <label className="block text-sm font-medium text-gray-700 mb-1">
-  //                 Square Feet *
-  //               </label>
-  //               <input
-  //                 type="number"
-  //                 {...register("squareFeet", {
-  //                   required: "Required",
-  //                   min: { value: 0, message: "Min 0" },
-  //                 })}
-  //                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-  //               />
-
-  //               {errors.squareFeet && (
-  //                 <p className="mt-1 text-sm text-red-600">
-  //                   {errors.squareFeet.message}
-  //                 </p>
-  //               )}
-  //             </div>
-  //           </div>
-
-  //           <div>
-  //             <label className="block text-sm font-medium text-gray-700 mb-1">
-  //               Property Type *
-  //             </label>
-  //             <select
-  //               {...register("propertyTypeId", {
-  //                 required: "Property type is required",
-  //               })}
-  //               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-  //             >
-  //               <option value="">Select a property type</option>
-  //               {propertyTypes.map((type) => (
-  //                 <option key={type.id} value={type.id}>
-  //                   {type.name}
-  //                 </option>
-  //               ))}
-  //             </select>
-  //             {errors.propertyTypeId && (
-  //               <p className="mt-1 text-sm text-red-600">
-  //                 {errors.propertyTypeId.message}
-  //               </p>
-  //             )}
-  //           </div>
-
-  //           <div>
-  //             <label className="block text-sm font-medium text-gray-700 mb-1">
-  //               Sale Type *
-  //             </label>
-  //             <select
-  //               {...register("saleTypeId", {
-  //                 required: "Sale type is required",
-  //               })}
-  //               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-  //             >
-  //               <option value="">Select a sale type</option>
-  //               {saleTypes.map((type) => (
-  //                 <option key={type.id} value={type.id}>
-  //                   {type.name}
-  //                 </option>
-  //               ))}
-  //             </select>
-  //             {errors.saleTypeId && (
-  //               <p className="mt-1 text-sm text-red-600">
-  //                 {errors.saleTypeId.message}
-  //               </p>
-  //             )}
-  //           </div>
-  //         </div>
-
-  //         {/* Additional Information */}
-  //         <div className="space-y-4">
-  //           <h2 className="text-xl font-semibold">Additional Information</h2>
-
-  //           <div>
-  //             <label className="block text-sm font-medium text-gray-700 mb-1">
-  //               Description
-  //             </label>
-  //             <textarea
-  //               {...register("description")}
-  //               rows="4"
-  //               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-  //             ></textarea>
-  //           </div>
-
-  //           <div>
-  //             <label className="block text-sm font-medium text-gray-700 mb-1">
-  //               Floor Plan URL
-  //             </label>
-  //             <input
-  //               type="text"
-  //               {...register("floorPlanUrl")}
-  //               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-  //             />
-  //           </div>
-
-  //           <div>
-  //             <label className="block text-sm font-medium text-gray-700 mb-1">
-  //               Features
-  //             </label>
-  //             <div className="grid grid-cols-2 gap-2">
-  //               {features.map((feature) => (
-  //                 <div key={feature.id} className="flex items-center">
-  //                   <input
-  //                     type="checkbox"
-  //                     id={`feature-${feature.id}`}
-  //                     checked={selectedFeatures.includes(feature.id)}
-  //                     onChange={() => handleFeatureToggle(feature.id)}
-  //                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-  //                   />
-
-  //                   <label
-  //                     htmlFor={`feature-${feature.id}`}
-  //                     className="ml-2 text-sm text-gray-700"
-  //                   >
-  //                     {feature.name}
-  //                   </label>
-  //                 </div>
-  //               ))}
-  //             </div>
-  //           </div>
-
-  //           <div>
-  //             <label className="block text-sm font-medium text-gray-700 mb-1">
-  //               Images
-  //             </label>
-  //             <div className="flex space-x-2 mb-2">
-  //               <input
-  //                 type="text"
-  //                 value={newImageUrl}
-  //                 onChange={(e) => setNewImageUrl(e.target.value)}
-  //                 placeholder="Enter image URL"
-  //                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-  //               />
-
-  //               <button
-  //                 type="button"
-  //                 onClick={handleAddImage}
-  //                 className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-  //               >
-  //                 Add
-  //               </button>
-  //             </div>
-
-  //             {images.length > 0 ? (
-  //               <div className="grid grid-cols-2 gap-4">
-  //                 {images.map((image, index) => (
-  //                   <div key={index} className="relative">
-  //                     <img
-  //                       src={image.url}
-  //                       alt={`Property ${index + 1}`}
-  //                       className="w-full h-32 object-cover rounded-md"
-  //                       onError={(e) => {
-  //                         e.target.onerror = null;
-  //                         e.target.src =
-  //                           "https://via.placeholder.com/150?text=Image+Error";
-  //                       }}
-  //                     />
-
-  //                     <button
-  //                       type="button"
-  //                       onClick={() => handleRemoveImage(index)}
-  //                       className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 focus:outline-none"
-  //                     >
-  //                       ×
-  //                     </button>
-  //                   </div>
-  //                 ))}
-  //               </div>
-  //             ) : (
-  //               <p className="text-sm text-gray-500">No images added yet.</p>
-  //             )}
-  //           </div>
-  //         </div>
-  //       </div>
-
-  //       <div className="flex justify-end space-x-4">
-  //         <button
-  //           type="button"
-  //           onClick={() => navigate("/admin/dashboard")}
-  //           className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-  //         >
-  //           Cancel
-  //         </button>
-  //         <button
-  //           type="submit"
-  //           disabled={loading}
-  //           className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
-  //         >
-  //           {loading
-  //             ? "Saving..."
-  //             : isEditMode
-  //               ? "Update Property"
-  //               : "Create Property"}
-  //         </button>
-  //       </div>
-  //     </form>
-  //   </div>
-  // );
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6 text-gray-900">
@@ -731,7 +448,9 @@ const PropertyForm = () => {
             {/* Map Coordinates Section */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">Map Coordinates</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Map Coordinates
+                </h3>
                 <button
                   type="button"
                   onClick={handleGeocode}
@@ -771,7 +490,9 @@ const PropertyForm = () => {
               </div>
 
               <p className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
-                <strong>Tip:</strong> Enter the location address above and click "Auto-Find Coordinates" to automatically populate these fields, or enter coordinates manually.
+                <strong>Tip:</strong> Enter the location address above and click
+                "Auto-Find Coordinates" to automatically populate these fields,
+                or enter coordinates manually.
               </p>
             </div>
 
@@ -981,8 +702,9 @@ const PropertyForm = () => {
               </label>
               <div className="mb-2">
                 <p className="text-xs text-gray-600 mb-3">
-                  Add images by entering direct image URLs. Supported formats: JPG, PNG, GIF, WebP.
-                  Recommended sources: Unsplash, your own hosting, or other reliable image services.
+                  Add images by entering direct image URLs. Supported formats:
+                  JPG, PNG, GIF, WebP. Recommended sources: Unsplash, your own
+                  hosting, or other reliable image services.
                 </p>
               </div>
               <div className="flex space-x-3 mb-4">
@@ -1015,7 +737,7 @@ const PropertyForm = () => {
                         src={image.url}
                         alt={`Property ${index + 1}`}
                         className="w-full h-32 object-cover"
-                        onError={(e) => handleImageError(e, 'form')}
+                        onError={(e) => handleImageError(e, "form")}
                       />
 
                       <button
@@ -1052,7 +774,10 @@ const PropertyForm = () => {
                 type="text"
                 {...register("agentName", {
                   required: "Agent name is required",
-                  minLength: { value: 2, message: "Agent name must be at least 2 characters" }
+                  minLength: {
+                    value: 2,
+                    message: "Agent name must be at least 2 characters",
+                  },
                 })}
                 className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-3 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
                 placeholder="Enter agent's full name"
@@ -1074,8 +799,9 @@ const PropertyForm = () => {
                   required: "Agent email is required",
                   pattern: {
                     value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                    message: "Please enter a valid email address (e.g., user@example.com)"
-                  }
+                    message:
+                      "Please enter a valid email address (e.g., user@example.com)",
+                  },
                 })}
                 className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-3 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
                 placeholder="agent@example.com"
@@ -1096,8 +822,9 @@ const PropertyForm = () => {
                 {...register("agentPhone", {
                   pattern: {
                     value: /^[\+]?[\d\s\-\(\)\.]{7,20}$/,
-                    message: "Please enter a valid phone number (7-20 digits, spaces, dashes, parentheses allowed)"
-                  }
+                    message:
+                      "Please enter a valid phone number (7-20 digits, spaces, dashes, parentheses allowed)",
+                  },
                 })}
                 className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-3 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
                 placeholder="1234567890 or (555) 123-4567 or 555-123-4567"
@@ -1108,7 +835,8 @@ const PropertyForm = () => {
                 </p>
               )}
               <p className="mt-1 text-xs text-gray-600">
-                Optional. Enter phone number in any common format (e.g., 1234567890, (555) 123-4567, 555-123-4567)
+                Optional. Enter phone number in any common format (e.g.,
+                1234567890, (555) 123-4567, 555-123-4567)
               </p>
             </div>
 
@@ -1121,8 +849,9 @@ const PropertyForm = () => {
                 {...register("agentWhatsappLink", {
                   pattern: {
                     value: /^https?:\/\/.+/,
-                    message: "Please enter a valid URL starting with http:// or https://"
-                  }
+                    message:
+                      "Please enter a valid URL starting with http:// or https://",
+                  },
                 })}
                 className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-3 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
                 placeholder="https://wa.me/1234567890"
@@ -1133,7 +862,8 @@ const PropertyForm = () => {
                 </p>
               )}
               <p className="mt-1 text-xs text-gray-600">
-                Optional WhatsApp direct message link (e.g., https://wa.me/1234567890)
+                Optional WhatsApp direct message link (e.g.,
+                https://wa.me/1234567890)
               </p>
             </div>
           </div>
