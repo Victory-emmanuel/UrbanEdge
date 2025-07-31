@@ -35,10 +35,7 @@ export const formatPrice = (price, options = {}) => {
  * @returns {string} Formatted price string with ₦ symbol
  */
 export const formatCurrency = (price, options = {}) => {
-  const {
-    minimumFractionDigits = 0,
-    maximumFractionDigits = 0,
-  } = options;
+  const { minimumFractionDigits = 0, maximumFractionDigits = 0 } = options;
 
   if (!price || isNaN(price)) {
     return "₦0";
@@ -74,11 +71,14 @@ export const formatPropertyPrice = (price) => {
  */
 export const parsePrice = (priceString) => {
   if (!priceString) return 0;
-  
+
   // Remove currency symbol and commas, then parse
-  const cleanString = priceString.toString().replace(/[₦,$]/g, '').replace(/,/g, '');
+  const cleanString = priceString
+    .toString()
+    .replace(/[₦,$]/g, "")
+    .replace(/,/g, "");
   const parsed = parseFloat(cleanString);
-  
+
   return isNaN(parsed) ? 0 : parsed;
 };
 
