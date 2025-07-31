@@ -67,22 +67,6 @@ const PropertyFeatures = ({ features, amenities }) => {
       </svg>
     ),
 
-    yearBuilt: (
-      <svg
-        className="h-6 w-6"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.5}
-          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-        />
-      </svg>
-    ),
-
     propertyType: (
       <svg
         className="h-6 w-6"
@@ -256,11 +240,9 @@ const PropertyFeatures = ({ features, amenities }) => {
             <p className="text-sm text-brown dark:text-beige-medium mb-1">
               {key === "area"
                 ? "Area"
-                : key === "yearBuilt"
-                  ? "Year Built"
-                  : key === "propertyType"
-                    ? "Property Type"
-                    : key.charAt(0).toUpperCase() + key.slice(1)}
+                : key === "propertyType"
+                ? "Property Type"
+                : key.charAt(0).toUpperCase() + key.slice(1)}
             </p>
             <p className="font-heading font-bold text-brown-dark dark:text-beige-light">
               {key === "area" ? `${value} sqft` : value}

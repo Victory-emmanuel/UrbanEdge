@@ -146,7 +146,6 @@ const PropertyDetailPage = () => {
     bedrooms: property.bedrooms,
     bathrooms: property.bathrooms,
     area: property.square_feet,
-    yearBuilt: property.year_built,
     propertyType: property.property_type?.name,
   };
 
@@ -295,13 +294,6 @@ const PropertyDetailPage = () => {
                         },
                       ]
                     : [],
-                  neighborhood: {
-                    description:
-                      property.neighborhood ||
-                      "Neighborhood information not available.",
-                    nearbyPlaces: [],
-                  },
-                  reviews: [],
                 }}
               />
             </div>

@@ -1,10 +1,31 @@
+/* eslint-disable react/prop-types */
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   CalendarDaysIcon,
   PhoneIcon,
   EnvelopeIcon,
+  CheckCircleIcon,
 } from "@heroicons/react/24/outline";
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Typography,
+  Input,
+  Textarea,
+  Button,
+  Tabs,
+  TabsHeader,
+  TabsBody,
+  Tab,
+  TabPanel,
+  Select,
+  Option,
+  Avatar,
+  Alert,
+  Spinner,
+} from "@material-tailwind/react";
 import { handleCommunicationAction } from "../../../utils/communicationUtils";
 
 const PropertyContactForm = ({ agent, propertyTitle, propertyId }) => {
@@ -120,298 +141,232 @@ const PropertyContactForm = ({ agent, propertyTitle, propertyId }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-brown-dark rounded-lg shadow-lg p-6">
-      {/* Agent Info */}
-      <div className="flex items-center mb-6">
-        <img
-          src={agent.photo}
-          alt={agent.name}
-          className="w-16 h-16 rounded-full object-cover mr-4"
-        />
+    <Card className="shadow-xl border-0">
+      <CardHeader
+        floated={false}
+        className="shadow-none bg-gradient-to-r from-brown-50 to-beige-50 dark:from-brown-800 dark:to-brown-700 m-0 rounded-t-xl"
+      >
+        {/* Agent Info */}
+        <div className="flex items-center p-6">
+          <Avatar
+            src={agent.photo}
+            alt={agent.name}
+            size="lg"
+            className="border-2 border-white shadow-lg"
+          />
+          <div className="ml-4 flex-1">
+            <Typography
+              variant="h5"
+              className="text-brown-dark dark:text-beige-light font-heading"
+            >
+              {agent.name}
+            </Typography>
+            <Typography
+              variant="small"
+              className="text-brown dark:text-beige-medium mb-3"
+            >
+              {agent.title || "Real Estate Agent"}
+            </Typography>
 
-        <div className="flex-1">
-          <h3 className="font-heading font-bold text-brown-dark dark:text-beige-light">
-            {agent.name}
-          </h3>
-          <p className="text-brown dark:text-beige-medium text-sm mb-2">
-            {agent.title || "Real Estate Agent"}
-          </p>
-
-          {/* Contact Options */}
-          <div className="space-y-1">
-            {/* Phone */}
-            {agent.phone && (
-              <div className="flex items-center text-taupe">
-                <PhoneIcon className="h-4 w-4 mr-2" />
+            {/* Contact Options */}
+            <div className="flex flex-wrap gap-4">
+              {agent.phone && (
                 <a
                   href={`tel:${agent.phone}`}
-                  className="text-sm hover:underline"
+                  className="flex items-center text-taupe hover:text-brown-dark transition-colors"
                 >
-                  {agent.phone}
+                  <PhoneIcon className="h-4 w-4 mr-1" />
+                  <Typography variant="small">{agent.phone}</Typography>
                 </a>
-              </div>
-            )}
-
-            {/* Email */}
-            {agent.email && (
-              <div className="flex items-center text-taupe">
-                <EnvelopeIcon className="h-4 w-4 mr-2" />
+              )}
+              {agent.email && (
                 <a
                   href={`mailto:${agent.email}`}
-                  className="text-sm hover:underline"
+                  className="flex items-center text-taupe hover:text-brown-dark transition-colors"
                 >
-                  {agent.email}
+                  <EnvelopeIcon className="h-4 w-4 mr-1" />
+                  <Typography variant="small">{agent.email}</Typography>
                 </a>
-              </div>
-            )}
-          </div>
-
-          {/* WhatsApp Button */}
-          {agent.whatsapp_link && (
-            <div className="mt-3">
-              <a
-                href={agent.whatsapp_link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center px-3 py-2 bg-green-500 text-white text-sm font-medium rounded-lg hover:bg-green-600 transition-colors duration-200"
-              >
-                <svg
-                  className="w-4 h-4 mr-2"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488" />
-                </svg>
-                WhatsApp
-              </a>
+              )}
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* Form Type Tabs */}
-      <div className="flex mb-6 border-b border-beige-medium dark:border-brown">
-        <button
-          onClick={() => setFormType("contact")}
-          className={`flex-1 py-2 font-medium text-center ${
-            formType === "contact"
-              ? "text-taupe border-b-2 border-taupe"
-              : "text-brown dark:text-beige-medium"
-          }`}
-        >
-          Contact Agent
-        </button>
-        <button
-          onClick={() => setFormType("tour")}
-          className={`flex-1 py-2 font-medium text-center ${
-            formType === "tour"
-              ? "text-taupe border-b-2 border-taupe"
-              : "text-brown dark:text-beige-medium"
-          }`}
-        >
-          Schedule Tour
-        </button>
-      </div>
-
-      {/* Form */}
-      {isSubmitted ? (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center py-6"
-        >
-          <div className="text-taupe mb-4">
-            <svg
-              className="h-12 w-12 mx-auto"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
           </div>
-          <h3 className="text-xl font-heading font-bold text-brown-dark dark:text-beige-light mb-2">
-            {formType === "contact" ? "Message Sent!" : "Tour Scheduled!"}
-          </h3>
-          <p className="text-brown dark:text-beige-medium">
-            {formType === "contact"
-              ? `Thank you for your interest. ${agent.name} will contact you shortly.`
-              : `Your tour has been scheduled. ${agent.name} will confirm the details soon.`}
-          </p>
-        </motion.div>
-      ) : (
-        <div>
-          <div className="space-y-4">
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-brown-dark dark:text-beige-light mb-1"
-              >
-                Your Name*
-              </label>
-              <input
-                type="text"
-                id="name"
+        </div>
+      </CardHeader>
+
+      <CardBody className="p-6">
+        {/* Form Type Tabs */}
+        <Tabs value={formType} className="mb-6">
+          <TabsHeader
+            className="rounded-lg bg-brown-50 dark:bg-brown-800 p-1"
+            indicatorProps={{
+              className: "bg-white dark:bg-brown-700 shadow-md rounded-md",
+            }}
+          >
+            <Tab
+              value="contact"
+              onClick={() => setFormType("contact")}
+              className={`font-medium ${
+                formType === "contact"
+                  ? "text-brown-dark dark:text-beige-light"
+                  : "text-brown dark:text-beige-medium"
+              }`}
+            >
+              Contact Agent
+            </Tab>
+            <Tab
+              value="tour"
+              onClick={() => setFormType("tour")}
+              className={`font-medium ${
+                formType === "tour"
+                  ? "text-brown-dark dark:text-beige-light"
+                  : "text-brown dark:text-beige-medium"
+              }`}
+            >
+              Schedule Tour
+            </Tab>
+          </TabsHeader>
+        </Tabs>
+
+        {/* Form Content */}
+        {isSubmitted ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center py-8"
+          >
+            <div className="mb-6">
+              <CheckCircleIcon className="h-16 w-16 mx-auto text-green-500" />
+            </div>
+            <Typography
+              variant="h4"
+              className="text-brown-dark dark:text-beige-light mb-3 font-heading"
+            >
+              {formType === "contact" ? "Message Sent!" : "Tour Scheduled!"}
+            </Typography>
+            <Typography className="text-brown dark:text-beige-medium">
+              {formType === "contact"
+                ? `Thank you for your interest. ${agent.name} will contact you shortly.`
+                : `Your tour has been scheduled. ${agent.name} will confirm the details soon.`}
+            </Typography>
+          </motion.div>
+        ) : (
+          <div className="space-y-6">
+            {/* Error/Success Messages */}
+            {communicationError && (
+              <Alert color="red" className="mb-4">
+                {communicationError}
+              </Alert>
+            )}
+
+            {communicationSuccess && (
+              <Alert color="green" className="mb-4">
+                {communicationSuccess}
+              </Alert>
+            )}
+
+            {/* Form Fields */}
+            <div className="grid gap-6">
+              <Input
+                label="Your Name *"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className="input"
                 required
+                className="!border-brown-200 focus:!border-taupe"
+                labelProps={{
+                  className: "!text-brown-600 dark:!text-beige-medium",
+                }}
               />
-            </div>
 
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-brown-dark dark:text-beige-light mb-1"
-              >
-                Email Address*
-              </label>
-              <input
+              <Input
+                label="Email Address *"
                 type="email"
-                id="email"
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className="input"
                 required
+                className="!border-brown-200 focus:!border-taupe"
+                labelProps={{
+                  className: "!text-brown-600 dark:!text-beige-medium",
+                }}
               />
-            </div>
 
-            <div>
-              <label
-                htmlFor="phone"
-                className="block text-sm font-medium text-brown-dark dark:text-beige-light mb-1"
-              >
-                Phone Number
-              </label>
-              <input
+              <Input
+                label="Phone Number"
                 type="tel"
-                id="phone"
                 name="phone"
                 value={formData.phone}
                 onChange={handleInputChange}
-                className="input"
+                className="!border-brown-200 focus:!border-taupe"
+                labelProps={{
+                  className: "!text-brown-600 dark:!text-beige-medium",
+                }}
               />
-            </div>
 
-            {formType === "tour" && (
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="tourDate"
-                    className="block text-sm font-medium text-brown-dark dark:text-beige-light mb-1"
-                  >
-                    Preferred Date*
-                  </label>
-                  <input
+              {formType === "tour" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input
+                    label="Preferred Date *"
                     type="date"
-                    id="tourDate"
                     name="tourDate"
                     value={formData.tourDate}
                     onChange={handleInputChange}
-                    className="input"
-                    required={formType === "tour"}
+                    required
+                    className="!border-brown-200 focus:!border-taupe"
+                    labelProps={{
+                      className: "!text-brown-600 dark:!text-beige-medium",
+                    }}
                   />
-                </div>
-                <div>
-                  <label
-                    htmlFor="tourTime"
-                    className="block text-sm font-medium text-brown-dark dark:text-beige-light mb-1"
-                  >
-                    Preferred Time*
-                  </label>
-                  <select
-                    id="tourTime"
-                    name="tourTime"
-                    value={formData.tourTime}
-                    onChange={handleInputChange}
-                    className="input"
-                    required={formType === "tour"}
-                  >
-                    <option value="">Select a time</option>
-                    <option value="Morning (9AM-12PM)">
-                      Morning (9AM-12PM)
-                    </option>
-                    <option value="Afternoon (12PM-4PM)">
-                      Afternoon (12PM-4PM)
-                    </option>
-                    <option value="Evening (4PM-7PM)">Evening (4PM-7PM)</option>
-                  </select>
-                </div>
-              </div>
-            )}
 
-            <div>
-              <label
-                htmlFor="message"
-                className="block text-sm font-medium text-brown-dark dark:text-beige-light mb-1"
-              >
-                Message
-              </label>
-              <textarea
-                id="message"
+                  <Select
+                    label="Preferred Time *"
+                    value={formData.tourTime}
+                    onChange={(value) =>
+                      setFormData({ ...formData, tourTime: value })
+                    }
+                    className="!border-brown-200 focus:!border-taupe"
+                    labelProps={{
+                      className: "!text-brown-600 dark:!text-beige-medium",
+                    }}
+                  >
+                    <Option value="Morning (9AM-12PM)">
+                      Morning (9AM-12PM)
+                    </Option>
+                    <Option value="Afternoon (12PM-4PM)">
+                      Afternoon (12PM-4PM)
+                    </Option>
+                    <Option value="Evening (4PM-7PM)">Evening (4PM-7PM)</Option>
+                  </Select>
+                </div>
+              )}
+
+              <Textarea
+                label="Message"
                 name="message"
                 value={formData.message}
                 onChange={handleInputChange}
-                rows="4"
-                className="input"
-              ></textarea>
+                rows={4}
+                className="!border-brown-200 focus:!border-taupe"
+                labelProps={{
+                  className: "!text-brown-600 dark:!text-beige-medium",
+                }}
+              />
             </div>
 
-            {/* Error Message */}
-            {communicationError && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
-                {communicationError}
-              </div>
-            )}
-
-            {/* Success Message */}
-            {communicationSuccess && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md mb-4">
-                {communicationSuccess}
-              </div>
-            )}
-
-            {/* Communication Buttons */}
-            <div className="space-y-3">
+            {/* Action Buttons */}
+            <div className="space-y-3 pt-4">
               {/* WhatsApp Button (Primary) */}
-              <button
+              <Button
                 onClick={() => handleCommunication("whatsapp")}
                 disabled={isSubmitting}
-                className={`w-full flex items-center justify-center px-4 py-3 bg-green-500 text-white font-medium rounded-lg hover:bg-green-600 transition-colors duration-200 ${
-                  isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-                }`}
+                className="w-full bg-green-500 hover:bg-green-600 flex items-center justify-center gap-3 py-3"
+                size="lg"
               >
                 {isSubmitting ? (
-                  <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
+                  <Spinner className="h-5 w-5" />
                 ) : (
                   <svg
-                    className="w-5 h-5 mr-2"
+                    className="w-5 h-5"
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
@@ -421,26 +376,26 @@ const PropertyContactForm = ({ agent, propertyTitle, propertyId }) => {
                 {formType === "contact"
                   ? "Send WhatsApp Message"
                   : "Schedule Tour via WhatsApp"}
-              </button>
+              </Button>
 
               {/* Email Button (Secondary) */}
-              <button
+              {/* <Button
                 onClick={() => handleCommunication("email")}
                 disabled={isSubmitting}
-                className={`w-full flex items-center justify-center px-4 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 border border-gray-300 transition-colors duration-200 ${
-                  isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-                }`}
+                variant="outlined"
+                className="w-full border-brown-300 text-brown-700 hover:bg-brown-50 flex items-center justify-center gap-3 py-3"
+                size="lg"
               >
-                <EnvelopeIcon className="h-5 w-5 mr-2" />
+                <EnvelopeIcon className="h-5 w-5" />
                 {formType === "contact"
                   ? "Send Email Instead"
                   : "Schedule Tour via Email"}
-              </button>
+              </Button> */}
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </CardBody>
+    </Card>
   );
 };
 
