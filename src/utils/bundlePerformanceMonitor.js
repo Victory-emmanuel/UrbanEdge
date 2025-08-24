@@ -12,6 +12,7 @@ class BundlePerformanceMonitor {
       chunkLoading: [],
       jsHeapSize: null,
       networkTransfers: [],
+      thirdPartyScripts: [], // Track third-party script loading
     };
 
     this.observers = [];
@@ -260,7 +261,14 @@ class BundlePerformanceMonitor {
 
   // Log performance metrics
   logMetrics() {
-    const { bundleSize, mainThreadWork, fcp, tbt, loadingTimes } = this.metrics;
+    const {
+      bundleSize,
+      mainThreadWork,
+      fcp,
+      tbt,
+      loadingTimes,
+      thirdPartyScripts,
+    } = this.metrics;
 
     console.log("🎯 Core Metrics:");
     if (bundleSize) {
@@ -286,6 +294,19 @@ class BundlePerformanceMonitor {
 
     if (loadingTimes.totalLoad) {
       console.log(`📈 Total Load Time: ${loadingTimes.totalLoad.toFixed(1)}ms`);
+    }
+
+    // Log third-party scripts performance
+    if (thirdPartyScripts && thirdPartyScripts.length > 0) {
+      console.log(`🔗 Third-party Scripts: ${thirdPartyScripts.length} loaded`);
+      thirdPartyScripts.forEach((script) => {
+        const emoji = script.success ? "✅" : "❌";
+        console.log(
+          `  ${emoji} ${script.name}: ${script.loadTime.toFixed(1)}ms (${
+            script.trigger
+          }) - ${script.impact} impact`
+        );
+      });
     }
   }
 
@@ -431,6 +452,41 @@ class BundlePerformanceMonitor {
     }
   }
 
+  // Track third-party script loading performance
+  trackThirdPartyScript(scriptData) {
+    const entry = {
+      ...scriptData,
+      timestamp: Date.now(),
+      impact: this.calculateScriptImpact(scriptData),
+    };
+
+    this.metrics.thirdPartyScripts.push(entry);
+
+    // Log third-party script loading
+    const emoji = scriptData.success ? "✅" : "❌";
+    const impact = entry.impact;
+    console.log(
+      `${emoji} Third-party script: ${
+        scriptData.name
+      } (${scriptData.loadTime.toFixed(1)}ms via ${
+        scriptData.trigger
+      }) Impact: ${impact}`
+    );
+
+    return entry;
+  }
+
+  // Calculate the performance impact of third-party scripts
+  calculateScriptImpact(scriptData) {
+    if (!scriptData.success) return "failed";
+
+    if (scriptData.loadTime < 100) return "minimal";
+    if (scriptData.loadTime < 500) return "low";
+    if (scriptData.loadTime < 1000) return "moderate";
+    if (scriptData.loadTime < 2000) return "high";
+    return "severe";
+  }
+
   // Stop monitoring and cleanup
   stopMonitoring() {
     this.isMonitoring = false;
@@ -446,6 +502,9 @@ class BundlePerformanceMonitor {
 
 // Create global instance
 const bundleMonitor = new BundlePerformanceMonitor();
+
+// Make available globally for third-party script tracking
+window.bundlePerformanceMonitor = bundleMonitor;
 
 // Auto-start monitoring in development
 if (import.meta.env.DEV) {

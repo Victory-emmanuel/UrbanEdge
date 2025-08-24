@@ -7,7 +7,7 @@ import ErrorBoundary from "./components/UI/ErrorBoundary";
 // Critical components (keep synchronous for fast initial load)
 import HomePage from "./pages/HomePage";
 import Layout from "./components/Layout/Layout";
-import ChatbotWidget from "./components/UI/ChatbotWidget";
+import JotformPlaceholder from "./components/UI/JotformPlaceholder";
 
 // Lazy load pages for code splitting
 const ServicesPage = lazy(() => import("./pages/ServicesPage"));
@@ -192,7 +192,7 @@ function App() {
                 </Suspense>
               </main>
             </Layout>
-            <ChatbotWidget />
+            <JotformPlaceholder />
           </BrowserRouter>
         </ErrorBoundary>
       </AuthProvider>
