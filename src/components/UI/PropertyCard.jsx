@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
 import { HeartIcon, MapPinIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
 import { formatPropertyPrice } from "../../utils/currencyUtils";
@@ -254,6 +255,40 @@ const PropertyCard = ({ property, onFavoriteToggle }) => {
       </div>
     </div>
   );
+};
+
+PropertyCard.propTypes = {
+  property: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    title: PropTypes.string,
+    price: PropTypes.number,
+    thumbnail_url: PropTypes.string,
+    imageUrl: PropTypes.string,
+    images: PropTypes.arrayOf(
+      PropTypes.shape({
+        url: PropTypes.string,
+        image_url: PropTypes.string,
+      })
+    ),
+    property_images: PropTypes.arrayOf(
+      PropTypes.shape({
+        url: PropTypes.string,
+        image_url: PropTypes.string,
+      })
+    ),
+    isRental: PropTypes.bool,
+    sale_type: PropTypes.string,
+    type: PropTypes.string,
+    property_type: PropTypes.string,
+    location: PropTypes.string,
+    bedrooms: PropTypes.number,
+    bathrooms: PropTypes.number,
+    sqft: PropTypes.number,
+    square_feet: PropTypes.number,
+    latitude: PropTypes.number,
+    longitude: PropTypes.number,
+  }).isRequired,
+  onFavoriteToggle: PropTypes.func,
 };
 
 export default PropertyCard;

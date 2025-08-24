@@ -1,4 +1,5 @@
 import { StarIcon } from "@heroicons/react/24/solid";
+import PropTypes from "prop-types";
 
 const TestimonialCard = ({ testimonial }) => {
   const { name, role, image, quote, rating } = testimonial;
@@ -13,7 +14,7 @@ const TestimonialCard = ({ testimonial }) => {
           className={`h-4 w-4 xs:h-5 xs:w-5 ${
             i < rating ? "text-taupe" : "text-beige-medium dark:text-brown"
           }`}
-        />,
+        />
       );
     }
     return stars;
@@ -27,7 +28,7 @@ const TestimonialCard = ({ testimonial }) => {
       {/* Quote */}
       <blockquote className="mb-4 xs:mb-6 flex-grow">
         <p className="italic text-sm xs:text-base text-brown dark:text-beige-medium">
-          "{quote}"
+          &ldquo;{quote}&rdquo;
         </p>
       </blockquote>
 
@@ -50,6 +51,16 @@ const TestimonialCard = ({ testimonial }) => {
       </div>
     </div>
   );
+};
+
+TestimonialCard.propTypes = {
+  testimonial: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    role: PropTypes.string.isRequired,
+    image: PropTypes.string.isRequired,
+    quote: PropTypes.string.isRequired,
+    rating: PropTypes.number.isRequired,
+  }).isRequired,
 };
 
 export default TestimonialCard;

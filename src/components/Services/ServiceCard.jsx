@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
 
 const ServiceCard = ({ service, index }) => {
   const { id, title, description, icon, image, features, cta } = service;
@@ -75,6 +76,22 @@ const ServiceCard = ({ service, index }) => {
       </div>
     </motion.div>
   );
+};
+
+ServiceCard.propTypes = {
+  service: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    icon: PropTypes.node.isRequired,
+    image: PropTypes.string.isRequired,
+    features: PropTypes.arrayOf(PropTypes.string).isRequired,
+    cta: PropTypes.shape({
+      text: PropTypes.string.isRequired,
+      link: PropTypes.string.isRequired,
+    }).isRequired,
+  }).isRequired,
+  index: PropTypes.number.isRequired,
 };
 
 export default ServiceCard;

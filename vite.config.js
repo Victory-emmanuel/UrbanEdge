@@ -8,6 +8,9 @@ export default defineConfig({
   plugins: [
     react(),
     imagetools({
+      // Exclude node_modules to prevent processing third-party assets
+      include: /^(?!.*node_modules).*\.(png|jpe?g|tiff?|webp|avif)$/,
+      exclude: /node_modules/,
       defaultDirectives: {
         format: ["avif", "webp", "jpeg"],
         quality: [75, 80, 85],

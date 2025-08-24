@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { CalendarIcon, UserIcon } from "@heroicons/react/24/outline";
+import PropTypes from "prop-types";
 
 const BlogCard = ({ post }) => {
   const { id, title, excerpt, imageUrl, author, date, category } = post;
@@ -77,6 +78,18 @@ const BlogCard = ({ post }) => {
       </div>
     </div>
   );
+};
+
+BlogCard.propTypes = {
+  post: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    excerpt: PropTypes.string.isRequired,
+    imageUrl: PropTypes.string.isRequired,
+    author: PropTypes.string.isRequired,
+    date: PropTypes.string.isRequired,
+    category: PropTypes.string,
+  }).isRequired,
 };
 
 export default BlogCard;

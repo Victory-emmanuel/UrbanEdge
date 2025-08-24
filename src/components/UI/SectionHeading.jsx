@@ -1,4 +1,4 @@
-import { LightMotion } from "../../utils/lightMotion";
+import { LightMotion } from "../../utils/lightMotion.jsx";
 import PropTypes from "prop-types";
 
 const SectionHeading = ({
