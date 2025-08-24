@@ -4,6 +4,7 @@ import App from "./App.jsx";
 import "./index.css";
 import { AuthProvider } from "./contexts/AuthContext";
 import MaterialTailwindProvider from "./components/UI/MaterialTailwindProvider";
+import "./utils/bundlePerformanceMonitor.js"; // Start performance monitoring
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

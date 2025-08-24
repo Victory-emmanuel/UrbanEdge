@@ -142,7 +142,7 @@ const BlogPage = () => {
           (post) =>
             post.title.toLowerCase().includes(query) ||
             post.excerpt.toLowerCase().includes(query) ||
-            post.category.toLowerCase().includes(query),
+            post.category.toLowerCase().includes(query)
         );
       }
 

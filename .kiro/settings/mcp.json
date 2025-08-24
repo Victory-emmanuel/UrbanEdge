@@ -2,34 +2,36 @@
   "mcpServers": {
     "supabase": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@supabase/mcp-server-supabase@latest"
-      ],
+      "args": ["-y", "@supabase/mcp-server-supabase@latest"],
       "env": {
         "SUPABASE_ACCESS_TOKEN": "sbp_189db94fef4d11fe7905d8f8adcef092090303a2"
       },
       "disabled": false,
       "autoApprove": []
     },
+    "Firebase": {
+      "command": "npx",
+      "args": ["-y", "@gannonh/firebase-mcp"],
+      "env": {
+        "SERVICE_ACCOUNT_KEY_PATH": "C:\\luxyviewsecrets\\luxyview-df411-firebase-adminsdk-fbsvc-78daf43959.json",
+        "FIREBASE_STORAGE_BUCKET": "luxyview-df411.firebasestorage.app",
+        "FIREBASE_API_KEY": "AIzaSyANUF7aOi0oA5Y2NEbXvQXBkU17EIHt6Pw",
+        "FIREBASE_AUTH_DOMAIN": "luxyview-df411.firebaseapp.com",
+        "FIREBASE_PROJECT_ID": "luxyview-df411",
+        "FIREBASE_MESSAGING_SENDER_ID": "474785880042",
+        "FIREBASE_APP_ID": "1:474785880042:web:855dead5fad25cedd00493"
+      }
+    },
     "Sequential Thinking": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
-      ],
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
       "env": {},
       "disabled": false,
-      "autoApprove": [
-        "sequentialthinking"
-      ]
+      "autoApprove": ["sequentialthinking"]
     },
     "context7": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@upstash/context7-mcp@latest"
-      ],
+      "args": ["-y", "@upstash/context7-mcp@latest"],
       "env": {
         "DEFAULT_MINIMUM_TOKENS": "10000"
       },
@@ -38,20 +40,14 @@
     },
     "Playwright": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@executeautomation/playwright-mcp-server"
-      ],
+      "args": ["-y", "@executeautomation/playwright-mcp-server"],
       "env": {},
       "disabled": false,
       "autoApprove": []
     },
     "Memory": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-memory"
-      ],
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
       "env": {
         "MEMORY_FILE_PATH": "memory.json"
       },

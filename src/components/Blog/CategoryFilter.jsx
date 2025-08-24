@@ -1,8 +1,8 @@
-import { motion } from "framer-motion";
+import { SimpleMotion } from "../../utils/lightAnimations";
 
 const CategoryFilter = ({ categories, activeCategory, onCategoryChange }) => {
   return (
-    <motion.div
+    <SimpleMotion
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -34,7 +34,7 @@ const CategoryFilter = ({ categories, activeCategory, onCategoryChange }) => {
           </button>
         ))}
       </div>
-    </motion.div>
+    </SimpleMotion>
   );
 };
 

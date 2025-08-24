@@ -1,16 +1,32 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { heroImage } from "../../assets/images/hero.js";
 
 const HeroSection = () => {
   return (
     <section className="relative h-screen min-h-[600px] flex items-center">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
-        <img
-          src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
-          alt="Luxury home exterior"
-          className="w-full h-full object-cover"
-        />
+        <picture>
+          {heroImage.sources.map((source, index) => (
+            <source
+              key={index}
+              media={source.media}
+              srcSet={source.srcSet}
+              type={source.type}
+            />
+          ))}
+          <img
+            src={heroImage.src}
+            alt={heroImage.alt}
+            className="w-full h-full object-cover"
+            width={heroImage.width}
+            height={heroImage.height}
+            sizes={heroImage.sizes}
+            fetchPriority="high"
+            decoding="async"
+          />
+        </picture>
 
         <div className="absolute inset-0 bg-gradient-to-r from-brown-dark/70 to-brown/50"></div>
       </div>
@@ -41,9 +57,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            
-          </motion.div>
+          ></motion.div>
           <Link
             to="/properties"
             className="inline-block bg-brown text-white font-bold py-3 px-6 rounded-full hover:text-white hover:bg-brown-dark transition duration-300"
