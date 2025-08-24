@@ -5,12 +5,15 @@ const PropertyGallery = ({ images }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Provide fallback images if none are provided or if images array is empty
-  const safeImages = images && images.length > 0 ? images : [
-    {
-      url: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      alt: "Property placeholder image"
-    }
-  ];
+  const safeImages =
+    images && images.length > 0
+      ? images
+      : [
+          {
+            url: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+            alt: "Property placeholder image",
+          },
+        ];
 
   const goToPrevious = () => {
     const isFirstImage = currentIndex === 0;
@@ -36,9 +39,14 @@ const PropertyGallery = ({ images }) => {
           src={safeImages[currentIndex]?.url || safeImages[0].url}
           alt={safeImages[currentIndex]?.alt || "Property image"}
           className="w-full h-full object-cover"
+          width="800"
+          height="500"
+          loading="eager"
+          decoding="async"
           onError={(e) => {
             e.target.onerror = null;
-            e.target.src = "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80";
+            e.target.src =
+              "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80";
           }}
         />
 
@@ -73,28 +81,33 @@ const PropertyGallery = ({ images }) => {
       {safeImages.length > 1 && (
         <div className="mt-4 flex space-x-2 overflow-x-auto pb-2">
           {safeImages.map((image, index) => (
-          <button
-            key={index}
-            onClick={() => goToImage(index)}
-            className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden ${
-              index === currentIndex
-                ? "ring-2 ring-taupe"
-                : "opacity-70 hover:opacity-100"
-            }`}
-            aria-label={`View image ${index + 1}`}
-            aria-current={index === currentIndex}
-          >
-            <img
-              src={image?.url || safeImages[0].url}
-              alt={image?.alt || "Property thumbnail"}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80";
-              }}
-            />
-          </button>
-        ))}
+            <button
+              key={index}
+              onClick={() => goToImage(index)}
+              className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden ${
+                index === currentIndex
+                  ? "ring-2 ring-taupe"
+                  : "opacity-70 hover:opacity-100"
+              }`}
+              aria-label={`View image ${index + 1}`}
+              aria-current={index === currentIndex}
+            >
+              <img
+                src={image?.url || safeImages[0].url}
+                alt={image?.alt || "Property thumbnail"}
+                className="w-full h-full object-cover"
+                width="80"
+                height="80"
+                loading="lazy"
+                decoding="async"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src =
+                    "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80";
+                }}
+              />
+            </button>
+          ))}
         </div>
       )}
     </div>

@@ -15,7 +15,9 @@ const PropertyCard = ({ property, onFavoriteToggle }) => {
   useEffect(() => {
     const checkFavoriteStatus = async () => {
       if (user && property.id) {
-        const { data } = await favoritesService.isPropertyFavorited(property.id);
+        const { data } = await favoritesService.isPropertyFavorited(
+          property.id
+        );
         setIsFavorite(data);
       } else {
         setIsFavorite(false);
@@ -29,28 +31,31 @@ const PropertyCard = ({ property, onFavoriteToggle }) => {
     e.preventDefault();
     e.stopPropagation();
 
-    console.log('Heart icon clicked for property:', property.id);
-    console.log('Current favorite status:', isFavorite);
-    console.log('Current user:', user?.id);
+    console.log("Heart icon clicked for property:", property.id);
+    console.log("Current favorite status:", isFavorite);
+    console.log("Current user:", user?.id);
 
     // Require authentication for favorites
     if (!user) {
-      alert('Please sign in to add properties to your favorites');
+      alert("Please sign in to add properties to your favorites");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      console.log('Calling toggleFavorite service...');
-      const result = await favoritesService.toggleFavorite(property.id, isFavorite);
-      console.log('Toggle favorite result:', result);
+      console.log("Calling toggleFavorite service...");
+      const result = await favoritesService.toggleFavorite(
+        property.id,
+        isFavorite
+      );
+      console.log("Toggle favorite result:", result);
 
       if (result.error) {
-        console.error('Error toggling favorite:', result.error);
-        alert('Failed to update favorites. Please try again.');
+        console.error("Error toggling favorite:", result.error);
+        alert("Failed to update favorites. Please try again.");
       } else {
-        console.log('Successfully toggled favorite, updating UI state');
+        console.log("Successfully toggled favorite, updating UI state");
         setIsFavorite(!isFavorite);
 
         // Call the callback if provided
@@ -59,8 +64,8 @@ const PropertyCard = ({ property, onFavoriteToggle }) => {
         }
       }
     } catch (error) {
-      console.error('Error toggling favorite:', error);
-      alert('Failed to update favorites. Please try again.');
+      console.error("Error toggling favorite:", error);
+      alert("Failed to update favorites. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -75,7 +80,9 @@ const PropertyCard = ({ property, onFavoriteToggle }) => {
       return property.images[0].url || property.images[0].image_url;
     }
     if (property.property_images && property.property_images.length > 0) {
-      return property.property_images[0].image_url || property.property_images[0].url;
+      return (
+        property.property_images[0].image_url || property.property_images[0].url
+      );
     }
     return "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80";
   };
@@ -83,10 +90,8 @@ const PropertyCard = ({ property, onFavoriteToggle }) => {
   // Helper function to clean string values (remove extra quotes)
   const cleanString = (str) => {
     if (!str) return "";
-    return str.toString().replace(/^"|"$/g, '');
+    return str.toString().replace(/^"|"$/g, "");
   };
-
-
 
   // Helper function to safely format square feet
   const formatSquareFeet = () => {
@@ -99,18 +104,26 @@ const PropertyCard = ({ property, onFavoriteToggle }) => {
 
   return (
     <div className="card group">
-      {/* Image Container */}
-      <div className="relative overflow-hidden h-48 xs:h-56 sm:h-64">
+      {/* Image Container with aspect ratio */}
+      <div
+        className="relative overflow-hidden h-48 xs:h-56 sm:h-64"
+        style={{ aspectRatio: "4/3" }}
+      >
         <Link to={`/properties/${property.id}`}>
-        <img
-          src={getImageUrl()}
-          alt={property.title || "Property"}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80";
-          }}
-        />
+          <img
+            src={getImageUrl()}
+            alt={property.title || "Property"}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            width="400"
+            height="300"
+            loading="lazy"
+            decoding="async"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src =
+                "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80";
+            }}
+          />
         </Link>
         {/* Price Badge */}
         <div className="absolute top-2 xs:top-4 left-2 xs:left-4 bg-white dark:bg-brown-dark px-2 xs:px-3 py-1 rounded-md shadow-md">
@@ -127,7 +140,7 @@ const PropertyCard = ({ property, onFavoriteToggle }) => {
           onClick={toggleFavorite}
           disabled={isLoading}
           className={`absolute top-2 xs:top-4 right-2 xs:right-4 p-1 xs:p-2 bg-white dark:bg-brown-dark rounded-full shadow-md hover:shadow-lg transition-all duration-200 ${
-            isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
+            isLoading ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
           }`}
           aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
         >
@@ -179,7 +192,9 @@ const PropertyCard = ({ property, onFavoriteToggle }) => {
                 d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
               />
             </svg>
-            <span className="text-xs xs:text-sm">{property.bedrooms || 0} Beds</span>
+            <span className="text-xs xs:text-sm">
+              {property.bedrooms || 0} Beds
+            </span>
           </div>
           <div className="flex items-center">
             <svg

@@ -27,12 +27,14 @@
     <meta property="og:url" content="https://urbanedge-realestate.com" />
     <meta property="og:image" content="/og-image.jpg" />
 
-    <!-- Fonts -->
+    <!-- Fonts with defer for non-critical loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Marcellus&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
     />
 
     <!-- Hero Image Preload for LCP Optimization -->

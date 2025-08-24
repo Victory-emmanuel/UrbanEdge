@@ -9,9 +9,34 @@ export default defineConfig({
     react(),
     imagetools({
       defaultDirectives: {
-        format: ["webp", "avif", "jpeg"],
-        quality: [80, 85],
+        format: ["avif", "webp", "jpeg"],
+        quality: [75, 80, 85],
         progressive: true,
+        // Generate responsive sizes
+        w: [400, 800, 1200, 1600],
+        // Enable different formats for different screen sizes
+        as: "picture",
+      },
+      // Additional optimization for specific image types
+      overrides: {
+        // For hero images, prioritize quality and formats
+        hero: {
+          format: ["avif", "webp", "jpeg"],
+          quality: [80, 85, 90],
+          w: [800, 1200, 1600, 2000],
+        },
+        // For thumbnails, prioritize size reduction
+        thumbnail: {
+          format: ["avif", "webp", "jpeg"],
+          quality: [70, 75],
+          w: [200, 400, 600],
+        },
+        // For gallery images, balance quality and size
+        gallery: {
+          format: ["avif", "webp", "jpeg"],
+          quality: [75, 80],
+          w: [600, 1000, 1400],
+        },
       },
     }),
     visualizer({

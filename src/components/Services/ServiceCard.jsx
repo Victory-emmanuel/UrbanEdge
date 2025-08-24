@@ -14,8 +14,19 @@ const ServiceCard = ({ service, index }) => {
       className="bg-white dark:bg-brown-dark rounded-lg shadow-lg overflow-hidden"
     >
       {/* Image */}
-      <div className="relative h-64 overflow-hidden">
-        <img src={image} alt={title} className="w-full h-full object-cover" />
+      <div
+        className="relative h-64 overflow-hidden"
+        style={{ aspectRatio: "16/9" }}
+      >
+        <img
+          src={image}
+          alt={title}
+          className="w-full h-full object-cover"
+          width="400"
+          height="225"
+          loading="lazy"
+          decoding="async"
+        />
 
         <div className="absolute inset-0 bg-gradient-to-t from-brown-dark/70 to-transparent"></div>
         <div className="absolute bottom-0 left-0 p-6">
